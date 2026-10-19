@@ -3,6 +3,7 @@
 .Renviron
 .Rhistory
 README.html
+significant_irf_automatic.md
 
 #nop
 scripts/06_bvartools.R
