@@ -4,27 +4,13 @@ This repository contains the data-processing pipeline, Bayesian Vector Autoregre
 
 The central question is how public spending affects non-oil GDP and what portion of that spending is related to imports.
 
-## Why quarterly data are constructed
+## Temporal disaggregation methodology
 
-Timor-Leste has a relatively short macroeconomic history and most of the available national accounts and monetary indicators are reported annually, not monthly or quarterly. To estimate a quarterly BVAR without treating annual observations as if they were high-frequency data, the project disaggregates the annual series using temporal-disaggregation methods.
+Timor-Leste has a relatively short macroeconomic history, and most available national accounts and monetary indicators are reported annually. To estimate a quarterly BVAR without treating annual observations as if they were high-frequency data, the project disaggregates the annual series using temporal-disaggregation methods.
 
-The exception is the import indicator: quarterly import data were obtained from [Trade Map](https://www.trademap.org) and used as a high-frequency indicator. The Trade Map economy group combines Timor-Leste's imports from:
+Initially, quarterly import data from Trade Map were tested as a high-frequency indicator for Chow-Lin disaggregation. However, econometric diagnostics revealed that this external indicator was not statistically significant. To prevent introducing spurious volatility and to strictly preserve the official annual constraints, the project applies the univariate proportional Denton-Cholette method (Denton, 1971; Cholette, 1984) for all series. 
 
-- Indonesia
-- China
-- Australia
-- Singapore
-- Hong Kong, China
-- Macao, China
-- Chinese Taipei (Taiwan)
-- Malaysia
-- United States of America
-- India
-- Viet Nam
-
-The source also contains an Australia entry that was not found in the final search; it is documented here for transparency and is not treated as an additional series.
-
-Quarterly imports are used as the indicator in the Chow-Lin disaggregation of annual non-oil GDP and annual imports. Government expenditure is disaggregated with Denton-Cholette using no external indicator. CPI and private credit are also converted to quarterly frequency with Denton-Cholette. The annual constraints are preserved using sum conversion for flow variables and average conversion for index or stock variables.
+Flow variables (real non-oil GDP, government expenditure, and real imports) are disaggregated subject to sum constraints ($\sum_{q=1}^4 x_{t,q} = X_t$). Index and stock variables (CPI and private credit) are subjected to quarterly average constraints. For the Consumer Price Index, the historical disaggregated series (2002–2012) is smoothly integrated with official monthly observed data (2013–2025), which were aggregated to quarterly frequency via arithmetic averages.
 
 The resulting sample runs from **2002 Q1 to 2023 Q4**.
 
@@ -75,8 +61,7 @@ Run the scripts in the following order:
 5.  `scripts/05_graphics.R` creates the macroeconomic level and log-scale figures.
 6.  `scripts/06_hyperparameters_lag_bvar_test.R` compares lag lengths from one to six using BVAR log-marginal likelihoods.
 7.  `scripts/07_irf_fevd.R` estimates the BVAR, generates IRFs and FEVDs, and exports the corresponding tables for two Cholesky orderings.
-8.  `scripts/08.5_irf_combined.py` combines selected government-shock figures into a single PDF.
-9.  `scripts/08_view_irf_data.R` formats IRF tables and generates the significance summary in `significant_irf_automatic.md`.
+8.  `scripts/08_view_irf_data.R` formats IRF tables and generates the significance summary in `significant_irf_automatic.md`.
 
 The complete sequence is also defined in `.github/workflows/reproducibility.yml` and is used by the repository's reproducibility workflow.
 
