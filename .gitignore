@@ -2,6 +2,7 @@
 .Rproj.user
 .Renviron
 .Rhistory
+README.html
 
 #nop
 scripts/06_bvartools.R
