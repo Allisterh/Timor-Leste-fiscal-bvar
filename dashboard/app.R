@@ -1,5 +1,6 @@
+rm(list = ls())
 #load library ---- 
-options(repos = c(CRAN = "https://cloud.r-project.org"))
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
