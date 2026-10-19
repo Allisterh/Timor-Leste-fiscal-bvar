@@ -1,5 +1,6 @@
+rm(list = ls())
 #load library ---- 
-options(repos = c(CRAN = "https://cloud.r-project.org"))
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
@@ -9,8 +10,8 @@ pacman::p_load(tidyverse,
 )
 
 #load csv ----
-irf_order_1_view <- readr::read_csv("csv/irf_full_order_1.csv")
-irf_order_2_view <- readr::read_csv("csv/irf_full_order_2.csv")
+irf_order_1_view <- readr::read_csv("Data/csv/irf_full_order_1.csv")
+irf_order_2_view <- readr::read_csv("Data/csv/irf_full_order_2.csv")
 
 irf_order_1_view <- irf_order_1_view %>%
   dplyr::select(Impulse, Response, Horizon, dplyr::everything()) %>%
@@ -63,22 +64,6 @@ DT::datatable(irf_order_2_view,
 #automation ----
 
 print(irf_order_1_view)
-# A tibble: 500 × 8
-# Impulse Response Horizon  `10%`  `16%`  `50%`  `84%`  `90%`
-# <chr>   <chr>      <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>
-#   1 CPI     CPI            1 0.0114 0.0116 0.0125 0.0134 0.0138
-# 2 CPI     CPI            2 0.0159 0.0164 0.0182 0.0203 0.0210
-# 3 CPI     CPI            3 0.0173 0.0180 0.0210 0.0245 0.0256
-# 4 CPI     CPI            4 0.0177 0.0186 0.0223 0.0271 0.0287
-# 5 CPI     CPI            5 0.0176 0.0187 0.0230 0.0292 0.0313
-# 6 CPI     CPI            6 0.0172 0.0184 0.0235 0.0308 0.0336
-# 7 CPI     CPI            7 0.0165 0.0179 0.0237 0.0323 0.0354
-# 8 CPI     CPI            8 0.0156 0.0172 0.0238 0.0338 0.0373
-# 9 CPI     CPI            9 0.0146 0.0164 0.0236 0.0350 0.0393
-# 10 CPI     CPI           10 0.0135 0.0154 0.0234 0.0362 0.0411
-# ℹ 490 more rows
-
-
 vars_names <- base::unique(irf_order_1_view$Impulse)
 base::sink("significant_irf_automatic.md")
 

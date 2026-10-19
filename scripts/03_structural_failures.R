@@ -1,5 +1,7 @@
+rm(list = ls())
+
 #load library ---- 
-options(repos = c(CRAN = "https://cloud.r-project.org"))
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
@@ -9,14 +11,8 @@ pacman::p_load(tidyverse,
 
 # import data if it doesn't exist in the environment
 
-if (!exists("quarterly_log") & !exists("quarterly")) {
-  if (file.exists("csv/timor_quarterly_log.csv") & file.exists("csv/timor_quarterly_data.csv")) {
-    quarterly_log <- readr::read_csv("csv/timor_quarterly_log.csv")
-    quarterly <- readr::read_csv("csv/timor_quarterly_data.csv")
-  } else {
-    source("scripts/02_dessagregation.R")
-  }
-}
+quarterly_log <- readr::read_csv("Data/csv/timor_quarterly_log.csv")
+quarterly <- readr::read_csv("Data/csv/timor_quarterly_data.csv")
 
 #break ----
 
@@ -44,16 +40,15 @@ for (v in vars_to_break) {
 
 message("criterion bic will be used")
 
-message("ln_gov_exp - m = 4 with bic = -254.3870 - m = 4   2005(4) 2009(2) 2012(4) 2016(3)")
+message("ln_gov_exp - m = 4 with bic = -254.3872 - m = 4   2005(4) 2009(2) 2012(4) 2016(3)")
 
-message("ln_gdp_non - m = 4 with bic = -395.69580  - m = 4   2006(1) 2010(2)         2016(3) 2019(4)")
+message("ln_gdp_non - m = 4 with bic = -464.26948 - m = 4   2006(1) 2010(3) 2016(3) 2019(4)")
 
-message("ln_imports - m = 4 with bic = -186.2522 - m = 4   2005(4) 2009(1) 2012(3)         2020(3)")
+message("ln_imports - m = 4 with bic = -194.2234 - m = 4   2005(4) 2009(1) 2012(3) 2020(3)")
 
-message("ln_cpi - m = 5 with bic = -461.84006 - m = 5   2005(2) 2009(1) 2012(4) 2016(1) 2020(3)")
+message("ln_cpi - m = 4 with bic = -457.55430 - m = 4   2005(2) 2009(1) 2012(4) 2020(3)")
 
-message("lc_credit - m = 3 with bic = -97.5200 - m = 3   2005(1) 2011(1)                 2020(3)")
-
+message("ln_credit - m = 3 with bic = -97.5195 - m = 3   2005(1) 2011(1) 2020(3)")
 
 dummys <- quarterly_log %>%
   dplyr::mutate(
@@ -86,7 +81,7 @@ dummys <- quarterly_log %>%
 print(dummys)
 print(dummys, n = 78)
 
-readr::write_csv(dummys, "csv/timor_quaiterly_log_and_dummys.csv")
+readr::write_csv(dummys, "Data/csv/timor_quarterly_log_and_dummys.csv")
 
 #add dummys to timor_quaiterly
 quarterly <- quarterly %>%
@@ -101,7 +96,7 @@ quarterly <- quarterly %>%
     by = "date"
   )
 
-readr::write_csv(quarterly, "csv/timor_quaiterly_and_dummys.csv")
+readr::write_csv(quarterly, "Data/csv/timor_quarterly_and_dummys.csv")
 
 if(F){
   "
@@ -119,5 +114,3 @@ if(F){
   
   "
 }
-
-rm(list = ls())

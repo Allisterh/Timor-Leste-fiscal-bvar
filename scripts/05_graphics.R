@@ -1,5 +1,6 @@
+rm(list = ls())
 #load library ---- 
-options(repos = c(CRAN = "https://cloud.r-project.org"))
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
@@ -8,14 +9,9 @@ pacman::p_load(tidyverse,
 
 # import data if it doesn't exist in the environment
 
-if (!exists("quarterly_log_dummy") & !exists("timor_quarterly_data")) {
-  if (file.exists("csv/timor_quaiterly_log_and_dummys.csv") & file.exists("csv/timor_quarterly_data.csv")) {
-    quarterly_log_dummy <- readr::read_csv("csv/timor_quaiterly_log_and_dummys.csv")
-    timor_quarterly_data <- readr::read_csv("csv/timor_quarterly_data.csv")
-  } else {
-    source("scripts/02_dessagregation.R")
-  }
-}
+quarterly_log_dummy <- readr::read_csv("Data/csv/timor_quarterly_log_and_dummys.csv")
+timor_quarterly_data <- readr::read_csv("Data/csv/timor_quarterly_data.csv")
+ 
 
 #graphics config ----
 
@@ -79,8 +75,8 @@ p1 <- ggplot2::ggplot() +
                      linewidth = 1.1) +   
   ggplot2::scale_color_manual(values = color_palette) +
   ggplot2::labs(
-    title = "Macroeconomic Dynamics of Timor-Leste (2002-2023)",
-    subtitle = "Government spending, non-oil GDP, and imports with exogenous structural shocks (shaded)",
+    # title = "Macroeconomic Dynamics of Timor-Leste (2002-2023)",
+    # subtitle = "Government spending, non-oil GDP, and imports with exogenous structural shocks (shaded)",
     x = "",
     y = "Millions USD (Constant 2015 Prices)",
     color = ""
@@ -100,8 +96,8 @@ p2 <- ggplot2::ggplot() +
                      linewidth = 1.1) +   
   ggplot2::scale_color_manual(values = color_palette) +
   ggplot2::labs(
-    title = "Logarithmic Transformation and Structural Breakpoints",
-    subtitle = "Vertical dotted lines indicate optimal regime partitions under the BIC criterion (Bai & Perron)",
+    # title = "Logarithmic Transformation and Structural Breakpoints",
+    # subtitle = "Vertical dotted lines indicate optimal regime partitions under the BIC criterion (Bai & Perron)",
     x = "Year",
     y = "Logarithmic Scale",
     color = ""
@@ -120,3 +116,4 @@ grDevices::dev.off()
 grDevices::pdf("graphics/figure_2_macro_log.pdf", width = 11, height = 6.5, family = "serif")
 base::print(p2)
 grDevices::dev.off()
+

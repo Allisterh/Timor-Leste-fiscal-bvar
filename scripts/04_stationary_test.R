@@ -1,5 +1,7 @@
+rm(list = ls())
+
 #load library ---- 
-options(repos = c(CRAN = "https://cloud.r-project.org"))
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
@@ -9,13 +11,9 @@ pacman::p_load(tidyverse,
 
 # import data if it doesn't exist in the environment
 
-if (!exists("quarterly_log_dummy")) {
-  if (file.exists("csv/timor_quaiterly_log_and_dummys.csv")) {
-    quarterly_log_dummy <- readr::read_csv("csv/timor_quaiterly_log_and_dummys.csv")
-  } else {
-    source("scripts/02_dessagregation.R")
-  }
-}
+
+quarterly_log_dummy <- readr::read_csv("Data/csv/timor_quarterly_log_and_dummys.csv")
+
 
 #stationary test ----
 
@@ -37,8 +35,8 @@ print(unit_root_pvalues)
 # <chr>          <dbl>      <dbl>
 #   1 ln_gov_exp    0.0854     0.0161
 # 2 ln_gdp_non    0.943      0.01  
-# 3 ln_imports    0.381      0.1   
-# 4 ln_cpi        0.917      0.01  
+# 3 ln_imports    0.490      0.1   
+# 4 ln_cpi        0.599      0.01  
 # 5 ln_credit     0.01       0.01  
 
 #za test ----
@@ -62,12 +60,11 @@ print(za_results)
 # <chr>       <dbl>         <dbl>       <int> <chr>      <lgl>        
 #   1 ln_gov_exp  -5.09         -5.08          13 2005-01-01 TRUE         
 # 2 ln_gdp_non  -3.37         -5.08          22 2007-04-01 FALSE        
-# 3 ln_imports  -3.68         -5.08          25 2008-01-01 FALSE        
-# 4 ln_cpi      -5.15         -5.08          29 2009-01-01 TRUE         
-# 5 ln_credit  -12.7          -5.08           5 2003-01-01 TRUE   
+# 3 ln_imports  -4.34         -5.08          25 2008-01-01 FALSE        
+# 4 ln_cpi      -4.02         -5.08          32 2009-10-01 FALSE        
+# 5 ln_credit  -12.7          -5.08           5 2003-01-01 TRUE      
 
 message("is_stationary meaning that h0 is rejacted, h1 is accepted ")
 message("za - h0: the series has unit root")
 
-rm(list = ls())
 
