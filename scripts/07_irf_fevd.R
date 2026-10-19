@@ -1,5 +1,7 @@
+rm(list = ls())
+
 #load library ---- 
-options(repos = c(CRAN = "https://cloud.r-project.org"))
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
@@ -8,14 +10,8 @@ pacman::p_load(tidyverse,
 
 # import data if it doesn't exist in the environment
 
-if (!exists("quarterly_log_dummy")) {
-  if (file.exists("csv/timor_quaiterly_log_and_dummys.csv")) {
-    quarterly_log_dummy <- readr::read_csv("csv/timor_quaiterly_log_and_dummys.csv")
-  } else {
-    source("scripts/02_dessagregation.R")
-  }
-}
-
+quarterly_log_dummy <- readr::read_csv("Data/csv/timor_quarterly_log_and_dummys.csv")
+  
 #series ----
 
 endogenous <- quarterly_log_dummy %>%
@@ -146,14 +142,14 @@ irf_df_order_1 <- irf_df_order_1 %>%
 
 print(irf_df_order_1)
 
-readr::write_csv(irf_df_order_1, "csv/irf_full_order_1.csv")
+readr::write_csv(irf_df_order_1, "Data/csv/irf_full_order_1.csv")
 
 #gov shock table
 irf_gov_shock_df_order_1 <- irf_df_order_1 %>%
   dplyr::filter(Impulse == "Gov Exp") %>%
   dplyr::arrange(Response, Horizon)
 
-readr::write_csv(irf_gov_shock_df_order_1, "csv/irf_gov_shock_full_order_1.csv")
+readr::write_csv(irf_gov_shock_df_order_1, "Data/csv/irf_gov_shock_full_order_1.csv")
 
 #camulative irf (CIRF) ----
 
@@ -234,7 +230,7 @@ irf_cum_df_order_1 <- irf_cum_df_order_1 %>%
   dplyr::arrange(Response, Horizon)
 
 print(irf_cum_df_order_1)
-readr::write_csv(irf_cum_df_order_1, "csv/irf_cumulative_order_1.csv")
+readr::write_csv(irf_cum_df_order_1, "Data/csv/irf_cumulative_order_1.csv")
 
 #fevd ----
 
@@ -280,7 +276,7 @@ ggplot2::ggsave("graphics/fevd_median_order_1.pdf",
                 plot = fevd_median_order_1, 
                 width = 12, height = 8)
 
-readr::write_csv(fevd_df_order_1, "csv/fevd_order_1.csv")
+readr::write_csv(fevd_df_order_1, "Data/csv/fevd_order_1.csv")
 
 
 ## another order ----
@@ -368,14 +364,14 @@ irf_df_order_2 <- irf_df_order_2 %>%
 
 print(irf_df_order_2)
 
-readr::write_csv(irf_df_order_2, "csv/irf_full_order_2.csv")
+readr::write_csv(irf_df_order_2, "Data/csv/irf_full_order_2.csv")
 
 #gov shock table
 irf_gov_shock_df_order_2 <- irf_df_order_2 %>%
   dplyr::filter(Impulse == "Gov Exp") %>%
   dplyr::arrange(Response, Horizon)
 
-readr::write_csv(irf_gov_shock_df_order_2, "csv/irf_gov_shock_full_order_2.csv")
+readr::write_csv(irf_gov_shock_df_order_2, "Data/csv/irf_gov_shock_full_order_2.csv")
 
 #camulative irf (CIRF) order 2 ----
 
@@ -456,7 +452,7 @@ irf_cum_df_order_2 <- irf_cum_df_order_2 %>%
   dplyr::arrange(Response, Horizon)
 
 print(irf_cum_df_order_2)
-readr::write_csv(irf_cum_df_order_2, "csv/irf_cumulative_order_2.csv")
+readr::write_csv(irf_cum_df_order_2, "Data/csv/irf_cumulative_order_2.csv")
 
 #fevd order 2 ----
 
@@ -502,6 +498,6 @@ ggplot2::ggsave("graphics/fevd_median_order_2.pdf",
                 plot = fevd_median_order_2, 
                 width = 12, height = 8)
 
-readr::write_csv(fevd_df_order_2, "csv/fevd_order_2.csv")
+readr::write_csv(fevd_df_order_2, "Data/csv/fevd_order_2.csv")
 
 
