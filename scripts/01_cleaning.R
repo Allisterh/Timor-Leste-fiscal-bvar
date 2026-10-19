@@ -12,18 +12,19 @@ if(F){
 }
 
 #load library ---- 
-options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-09-03"))
-#note if the library are update, use CRAN = "https://packagemanager.posit.co/cran/2026-09-03"
-#this install 2026-09-03 librery
+options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-10-19"))
+#note if the library are update, use CRAN = "https://packagemanager.posit.co/cran/2026-10-19"
+#this install 2026-10-19 librery
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(readxl,
                tidyverse,
                janitor,
-               dplyr
+               dplyr,
+               tsibble
 )
 
-data_timor <- readxl::read_excel("dataset/tim-key-indicators-2025.xlsx", 
+data_timor <- readxl::read_excel("Data/data-source/tim-key-indicators-2025.xlsx", 
                          sheet = "TIM", 
                          range = "B7:AA424", 
                          col_names = FALSE)
@@ -73,7 +74,7 @@ rownames(data_timor) <- NULL
 #save timor-leste's dataset
 #note: it's not completely cleaned, but it's in dataframe format
 
-readr::write_csv(data_timor, "csv/timor_leste_uncleaned.csv")
+readr::write_csv(data_timor, "Data/csv/timor_leste_uncleaned.csv")
 
 #select the variables ----
 
@@ -97,12 +98,12 @@ print(annual_data)
 
 tibble::as_tibble(annual_data)
 
-readr::write_csv(annual_data, "csv/timor_annual_macro.csv")
+readr::write_csv(annual_data, "Data/csv/timor_annual_macro.csv")
 
 
 # imports ----
 
-imports_raw <- readr::read_csv("dataset/timor-leste-imports-exports-to-timor-leste-by-product_all.csv") 
+imports_raw <- readr::read_csv("Data/data-source/timor-leste-imports-exports-to-timor-leste-by-product_all.csv") 
 
 print(imports_raw)
 
@@ -186,7 +187,40 @@ imports %>%
   tibble::as_tibble() %>%
   print(n = 88)
 
-readr::write_csv(imports, "csv/imports_cleaning_timor_leste.csv")
+readr::write_csv(imports, "Data/csv/imports_cleaning_timor_leste.csv")
 
-rm(list = ls())
+#cpi ----
+
+cpi <- readxl::read_excel("Data/data-source/CPI Publish Readj New Weight.xls", 
+                  sheet = "More", range = "A10:O90", col_names = FALSE)
+
+cpi_hola <- cpi %>%
+  dplyr::filter(!...1 %in% c("Monthly", "Quarterly", "Year on Year"))
+
+cpi_hola <- cpi_hola %>%
+  dplyr::filter(...1 %in% "Index")
+
+dplyr::glimpse(cpi_hola)
+
+cpi_matrix <- cpi_hola %>%
+  dplyr::select(...3:...14) %>%
+  dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric)) %>%
+  as.matrix()
+
+cpi_vector <- as.vector(t(cpi_matrix))
+
+cpi_ts <- stats::ts(cpi_vector, start = c(2013, 1), frequency = 12)
+
+cpi_ts <- as_tsibble(cpi_ts)
+
+dplyr::glimpse(cpi_ts)
+
+cpi_months <- cpi_ts %>%
+  tibble::as_tibble() %>%
+  dplyr::mutate(date = as.Date(index)) %>%
+  dplyr::select(date, cpi_months = value)
+
+readr::write_csv(cpi_months,"Data/csv/cpi_months.csv")
+
+
 
