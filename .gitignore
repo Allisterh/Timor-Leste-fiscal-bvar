@@ -12,6 +12,9 @@ scripts/06_bvartools.R
 significant_irf.md
 irf.md
 fevd.md
+agents.md
+
+agents.html
 
 #py
 tmp1.png
@@ -19,3 +22,9 @@ tmp2.png
 
 #shiny
 dashboard/rsconnect/
+
+#tex
+metodologia_resultados*
+
+!metodologia_resultados*.tex
+!metodologia_resultados*.pdf
