@@ -81,6 +81,8 @@ prof_names_order_1 <- c("Gov Exp",
 
 colnames(endogenous_order_1) <- prof_names_order_1
 
+set.seed(54973997)
+
 timor_order_1 <- BVAR::bvar(
   data = endogenous_order_1,
   lags = 2,

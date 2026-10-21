@@ -3,9 +3,8 @@
 if(F){
   "
   
-  How much does each dollar spent by the government actually contribute to 
-  non-oil GDP, and how many dollars go directly toward imports 
-  (fiscal leakage)?
+  how real non-oil GDP responds to public spending and what 
+  portion of the fiscal stimulus is reflected in higher imports
   
   
   "
