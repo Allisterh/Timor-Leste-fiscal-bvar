@@ -1,0 +1,771 @@
+\documentclass[11pt,a4paper]{article}
+
+% ---- Motor: LuaLaTeX ----
+\usepackage{fontspec}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{csquotes}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{threeparttable}
+\usepackage{array}
+\usepackage[backend=biber,style=authoryear,maxcitenames=2,maxbibnames=99]{biblatex}
+\addbibresource{referencias.bib}
+
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+
+\title{\textbf{Transmisión fiscal y fuga hacia importaciones en Timor-Leste:\\ metodología y resultados de un BVAR trimestral}}
+\author{Emerson L{\'o}pez\thanks{Documento elaborado a partir de los datos, scripts y resultados del repositorio \emph{Timor-Leste Fiscal BVAR}. La especificación y las cifras se verificaron contra los archivos del repositorio; las discrepancias detectadas se documentan en la sección~\ref{sec:repro}.}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Este documento presenta la metodología y los resultados del proyecto que estudia
+c{\'o}mo responde el PIB real no petrolero de Timor-Leste al gasto p{\'u}blico y
+qu{\'e} parte del est{\'i}mulo fiscal se refleja en mayores importaciones. El
+ejercicio emp{\'i}rico es un VAR bayesiano (BVAR) trimestral con cinco variables
+end{\'o}genas en logaritmos, dos rezagos, dummies de eventos y una
+identificaci{\'o}n recursiva de Cholesky evaluada bajo dos {\'o}rdenes
+alternativos. La muestra abarca 2002Q1--2023Q4 (88 trimestres; 86 observaciones
+efectivas con dos rezagos). Los resultados provienen de los archivos exportados
+por el proyecto y se describen como evidencia condicionada al modelo y a una
+muestra corta, no como identificaci{\'o}n causal incontrovertible. El shock fiscal
+se asocia a respuestas positivas y persistente pero transitorias del gasto, a
+respuestas positivas del PIB no petrolero con rezago, y a respuestas de las
+importaciones mayores y m{\'a}s tempranas; la respuesta del {\'i}ndice de precios
+es positiva pero peque{\~n}a, y la del cr{\'e}dito privado no es distinguible de
+cero con los intervalos posteriores considerados. Debido a que los resultados
+exportados se refieren a un shock ortogonalizado de escala no normalizada, en el
+texto se distingue expl{\'i}citamente la ``respuesta porcentual ante un shock
+fiscal ortogonalizado'' de una elasticidad din{\'a}mica respecto a un aumento de
+1\% del gasto.
+\end{abstract}
+
+\section{Metodolog{\'i}a}
+\label{sec:metodologia}
+
+\subsection{Dise{\~n}o emp{\'i}rico y pregunta}
+\label{sec:diseno}
+
+La pregunta central del proyecto es c{\'o}mo responde el PIB real no petrolero al
+gasto p{\'u}blico y qu{\'e} porci{\'o}n del est{\'i}mulo fiscal se asocia a
+mayores importaciones. Timor-Leste es una econom{\'i}a peque{\~n}a y abierta, con
+una historia macroecon{\'o}mica corta y series principalmente anuales. Un VAR
+bayesiano trimestral permite estimar respuestas din{\'a}micas conjuntas del gasto
+p{\'u}blico, el PIB no petrolero, las importaciones, los precios y el cr{\'e}dito,
+aprovechando la estructura de rezagos y la informaci{\'o}n previa para contener la
+varianza en muestras peque{\~n}as \parencite{litterman1986,giannone2015}.
+
+El dise{\~n}o sigue la tradici{\'o}n de los VAR estructurales de
+\cite{sims1980}, pero su lectura debe ser prudente: se trata de evidencia
+condicionada al modelo, a la desagregaci{\'o}n temporal, al prior y al orden
+recursivo de identificaci{\'o}n, no de identificaci{\'o}n causal
+incontrovertible. Las importaciones funcionan como canal de fuga externa; el IPC
+y el cr{\'e}dito privado permiten observar canales de precios y financieros,
+respectivamente.
+
+El objetivo de investigaci{\'o}n es estimar c{\'o}mo responden, en t{\'e}rminos
+porcentuales y a lo largo del tiempo, el PIB real no petrolero y las
+importaciones ante un shock del gasto p{\'u}blico, y examinar si esas respuestas
+cambian bajo dos {\'o}rdenes recursivos. El IPC, el cr{\'e}dito privado y la
+persistencia del propio gasto son resultados complementarios. El modelo est{\'a}
+en logaritmos y el an{\'a}lisis propuesto estima respuestas din{\'a}micas
+porcentuales, \textbf{no} un multiplicador fiscal en d{\'o}lares.
+
+\subsection{Datos, variables y muestra}
+\label{sec:datos}
+
+Las cinco variables end{\'o}genas, en logaritmos naturales, son:
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Variables del modelo, unidades y fuentes}
+\label{tab:variables}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+Variable & Interpretaci{\'o}n & Unidades & Fuente principal \\
+\midrule
+\texttt{ln\_gov\_exp}   & Gasto de consumo final del gobierno & Millones de USD & ADB \parencite{adb2025} \\
+\texttt{ln\_gdp\_non}   & PIB real no petrolero               & Millones de USD & ADB \parencite{adb2025} \\
+\texttt{ln\_imports}    & Importaciones reales de bienes y servicios & Millones de USD & ADB \parencite{adb2025} \\
+\texttt{ln\_cpi}        & {\'I}ndice de precios al consumidor & {\'I}ndice & DNE \parencite{dne_cpi} \\
+\texttt{ln\_credit}     & Cr{\'e}ditos al sector privado      & Millones de USD & ADB \parencite{adb2025} \\
+\bottomrule
+\end{tabular}}
+\par\vspace{0.4em}
+\begin{minipage}{0.95\textwidth}
+\footnotesize\textit{Nota:} El gasto, el PIB, las importaciones y el cr{\'e}dito se reportan en millones de d{\'o}lares estadounidenses seg{\'u}n las series fuente; el IPC es un {\'i}ndice. No todas las variables comparten las mismas unidades. Las importaciones trimestrales de \emph{Trade Map} \parencite{trademap2025} se usaron como insumo de limpieza y no como indicador de desagregaci{\'o}n (v{\'e}ase la secci{\'o}n~\ref{sec:limpieza}).
+\end{minipage}
+\end{table}
+
+La base anual limpia cubre 2002--2023 (22 observaciones). La base trimestral
+construida cubre 2002Q1--2023Q4 (88 trimestres). Con dos rezagos, el VAR utiliza
+86 observaciones efectivas. Estas fechas y el n{\'u}mero de observaciones se
+verificaron directamente en los datos utilizados
+(\texttt{Data/csv/timor\_quarterly\_log\_and\_dummys.csv}). La muestra es corta
+para un VAR de cinco variables y dos rezagos; ello limita la precisi{\'o}n y es
+una raz{\'o}n adicional para interpretar los resultados con cautela.
+
+\subsection{Limpieza y construcci{\'o}n de series}
+\label{sec:limpieza}
+
+El script \texttt{scripts/01\_cleaning.R} extrae del libro de indicadores del ADB
+las cinco series anuales (gasto de consumo final del gobierno, PIB por origen
+industrial a precios constantes de 2015, importaciones de bienes y servicios, IPC
+de Dili y cr{\'e}ditos al sector privado), elimina valores faltantes codificados
+y columnas sin informaci{\'o}n y produce \texttt{timor\_annual\_macro.csv}.
+
+Las importaciones trimestrales de \emph{Trade Map} se procesan en el mismo
+script: se convierten de miles de USD a millones de USD y se detecta una
+observaci{\'o}n inusualmente alta en 2010Q4. El script aplica una
+correcci{\'o}n registrada en el c{\'o}digo: divide ese valor por diez
+(\texttt{imports\$imports[36] <- imports\$imports[36] / 10}). Esta decisi{\'o}n
+se documenta aqu{\'i} de forma transparente como el tratamiento aplicado por el
+script; no debe presentarse como una correcci{\'o}n inocua ni como un dato
+oficial verificado de forma independiente. La serie resultante se guarda en
+\texttt{imports\_cleaning\_timor\_leste.csv}.
+
+El IPC mensual se obtiene de la fuente incluida en
+\texttt{Data/data-source/CPI Publish Readj New Weight.xls}, que en el propio
+archivo se identifica como proveniente de la Direc{\c c}{\~a}o Nacional de
+Estat{\'i}stica de Timor-Leste \parencite{dne_cpi}. Las observaciones mensuales
+disponibles desde 2013 se agregan a frecuencia trimestral mediante promedios
+aritm{\'e}ticos y se almacenan en \texttt{cpi\_months.csv}.
+
+\subsection{Desagregaci{\'o}n temporal}
+\label{sec:desagregacion}
+
+Para evitar tratar observaciones anuales como si fueran de alta frecuencia, las
+series anuales se desagregan con el m{\'e}todo proporcional de Denton--Cholette
+univariado sin indicador trimestral
+\parencite{denton1971,cholette1984}. Para las variables de flujo (gasto
+p{\'u}blico, PIB real no petrolero e importaciones reales) se impone la
+restricci{\'o}n de suma anual:
+\[
+\sum_{q=1}^{4} x_{t,q} = X_t .
+\]
+Para el IPC y el cr{\'e}dito privado se impone la restricci{\'o}n de promedio
+trimestral. El IPC trimestral desagregado se sustituye desde 2013 por el promedio
+trimestral calculado con las observaciones mensuales oficiales. De este modo se
+distingue entre observaciones oficiales y estimaciones trimestrales
+interpoladas: las primeras son datos observados agregados, mientras que las
+segundas son interpolaciones que respetan las restricciones anuales.
+
+El proyecto prob{\'o} las importaciones de \emph{Trade Map} como indicador
+trimestral en una especificaci{\'o}n de Chow--Lin, pero los diagn{\'o}sticos
+anotados en \texttt{scripts/02\_dessagregation.R} (coeficiente del indicador no
+significativo y $R^2$ ajustado bajo o negativo) no justificaron usarlas como
+indicador. Por eso todas las series se desagregan con el m{\'e}todo univariado
+proporcional, que preserva estrictamente las restricciones anuales oficiales. La
+desagregaci{\'o}n induce suavidad determinista y autocorrelaci{\'o}n en las
+series trimestrales; este punto se retoma como limitaci{\'o}n en la
+secci{\'o}n~\ref{sec:diag}.
+
+\subsection{Quiebres y controles ex{\'o}genos}
+\label{sec:quiebres}
+
+El script \texttt{scripts/03\_structural\_failures.R} estima quiebres
+estructurales m{\'u}ltiples con el procedimiento de Bai--Perron y selecciona el
+n{\'u}mero de quiebres por el criterio BIC \parencite{baiperron1998,baiperron2003}.
+La tabla~\ref{tab:quiebres} reproduce las fechas {\'o}ptimas obtenidas al
+reejecutar el an{\'a}lisis sobre los datos del repositorio.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{threeparttable}
+\caption{Quiebres estructurales {\'o}ptimos por serie (Bai--Perron, selecci{\'o}n por BIC)}
+\label{tab:quiebres}
+\begin{tabular}{@{}lcl@{}}
+\toprule
+Serie & N{\'u}mero de quiebres & Fechas {\'o}ptimas (trimestres) \\
+\midrule
+\texttt{ln\_gov\_exp} & 4 & 2005Q4, 2009Q2, 2012Q4, 2016Q3 \\
+\texttt{ln\_gdp\_non} & 4 & 2006Q1, 2010Q3, 2016Q3, 2019Q4 \\
+\texttt{ln\_imports}  & 4 & 2005Q4, 2009Q1, 2012Q3, 2020Q3 \\
+\texttt{ln\_cpi}      & 4 & 2005Q2, 2009Q1, 2012Q4, 2020Q3 \\
+\texttt{ln\_credit}   & 3 & 2005Q1, 2011Q1, 2020Q3 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item Nota: Resultados de \texttt{scripts/03\_structural\_failures.R}. Las fechas se agrupan en ventanas hist{\'o}ricas y se resumen en cinco dummies de evento.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+A partir de esos resultados, el modelo incluye cinco dummies ex{\'o}genas que
+reflejan ventanas hist{\'o}ricas: \texttt{shock\_2006} (crisis pol{\'i}tica de
+2006), \texttt{shock\_2009} (crisis financiera global y retiros del Fondo
+Petrolero), \texttt{shock\_2012} (per{\'i}odo posterior a la presencia de
+Naciones Unidas), \texttt{shock\_2016} (crisis pol{\'i}tica 2016--2018) y
+\texttt{shock\_covid} (COVID-19). Son controles de ventanas hist{\'o}ricas
+incluidos en el modelo; no se interpretan como identificaciones causales
+separadas ni como dummies acumulativas.
+
+\subsection{Estacionariedad y especificaci{\'o}n}
+\label{sec:estacionariedad}
+
+El script \texttt{scripts/04\_stationary\_test.R} aplica pruebas ADF
+\parencite{dickeyfuller1979}, KPSS \parencite{kpss1992} y Zivot--Andrews
+\parencite{zivot1992}. La tabla~\ref{tab:raices} resume los resultados. Los
+resultados no son uniformes entre series: ADF y KPSS arrojan lecturas
+contradictorias para varias series, y la prueba de Zivot--Andrews solo rechaza
+la ra{\'i}z unitaria en \texttt{ln\_gov\_exp} y \texttt{ln\_credit} al 5\%.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{threeparttable}
+\caption{Pruebas de ra{\'i}ces unitarias y estacionariedad}
+\label{tab:raices}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Serie & ADF ($p$) & KPSS ($p$) & Zivot--Andrews ($t$) & Valor cr{\'i}tico 5\% \\
+\midrule
+\texttt{ln\_gov\_exp} & 0.0854 & 0.0161 & $-5.09$ & $-5.08$ \\
+\texttt{ln\_gdp\_non} & 0.9430 & 0.0100 & $-3.37$ & $-5.08$ \\
+\texttt{ln\_imports}  & 0.4900 & 0.1000 & $-4.34$ & $-5.08$ \\
+\texttt{ln\_cpi}      & 0.5990 & 0.0100 & $-4.02$ & $-5.08$ \\
+\texttt{ln\_credit}   & 0.0100 & 0.0100 & $-12.70$ & $-5.08$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item Nota: ADF: $H_0$ ra{\'i}z unitaria. KPSS: $H_0$ estacionariedad. Zivot--Andrews (modelo ``both'', 2 rezagos): $H_0$ ra{\'i}z unitaria con quiebre estructural. En Zivot--Andrews, valores $t$ menores que el valor cr{\'i}tico indican rechazo de $H_0$. Fuente: \texttt{scripts/04\_stationary\_test.R}.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+La especificaci{\'o}n principal de \texttt{scripts/07\_irf\_fevd.R} comprende
+cinco variables en logaritmos, dos rezagos y cinco dummies ex{\'o}genas. El
+paquete \texttt{BVAR} incluye una constante por defecto. La distribuci{\'o}n
+previa es una Minnesota \parencite{litterman1986} con
+\texttt{hyper = "lambda"}: solo $\lambda$ se trata como hiperpar{\'a}metro y se
+estima, con modo previo 0.2 y soporte $[0.001,3]$; no es un valor literalmente
+fijado en 0.2. El par{\'a}metro $\alpha$ tiene modo 2 con soporte $[1,3]$ y la
+escala $\psi$ se basa en la varianza de las primeras diferencias de cada serie,
+con cotas $\sqrt{\text{var}}/100$ y $100\sqrt{\text{var}}$. La
+corrida diagn{\'o}stica de \texttt{scripts/06\_hyperparameters\_lag\_bvar\_test.R}
+reporta un valor efectivo de $\lambda$ de 2.669 para un modelo de dos rezagos
+estimado con la misma configuraci{\'o}n, lo que confirma que $\lambda$ se
+optimiza y no queda fijado.
+
+La elecci{\'o}n de dos rezagos merece una aclaraci{\'o}n. En el script
+exploratorio \texttt{06\_hyperparameters\_\allowbreak lag\_\allowbreak bvar\_test.R}, la
+selecci{\'o}n por log-verosimilitud marginal no es {\'u}nivoca: con una
+configuraci{\'o}n de hiperpar{\'a}metros ``auto'' el orden 3 alcanza el mayor
+valor (1064.12 frente a 1060.01 del orden 2), mientras que con $\lambda$ fijado
+en 1.3 el orden 2 es el preferido (1095.25 frente a 1073.47 del orden 3). La
+especificaci{\'o}n principal conserva dos rezagos, en l{\'i}nea con el
+README y con el criterio de parcimonia para una muestra corta. Este resultado
+exploratorio no debe confundirse con las estimaciones principales de
+\texttt{scripts/07\_irf\_fevd.R}.
+
+\subsection{Identificaci{\'o}n y an{\'a}lisis posterior}
+\label{sec:identificacion}
+
+La identificaci{\'o}n es recursiva de Cholesky \parencite{sims1980}. Se estiman
+exactamente dos {\'o}rdenes:
+
+\begin{itemize}
+\item \textbf{Orden 1:} gasto p{\'u}blico, importaciones, PIB no petrolero, IPC y
+cr{\'e}dito.
+\item \textbf{Orden 2:} PIB no petrolero, gasto p{\'u}blico, importaciones, IPC y
+cr{\'e}dito.
+\end{itemize}
+
+El orden 2 es una sensibilidad a la restricci{\'o}n de contemporaneidad; no es una
+prueba de robustez que elimine toda dependencia de supuestos. La secuencia de
+variables no ``prueba'' el orden causal: las respuestas dependen de restricciones
+recursivas contempor{\'a}neas.
+
+El muestreador se ejecuta con 300\,000 iteraciones, 100\,000 de calentamiento y
+\texttt{thinning} de 50 (4\,000 extracciones conservadas), con horizonte de 20
+trimestres y cuantiles posteriores de 0.10, 0.16, 0.50, 0.84 y 0.90, lo que
+produce intervalos centrales del 80\% (0.10--0.90) y del 68\% (0.16--0.84). El
+script principal fija la semilla 54973997 antes de la primera estimaci{\'o}n; la
+segunda orden se reproduce al ejecutar el script completo en el mismo orden,
+pues no se vuelve a fijar una semilla antes de ese segundo modelo. El alcance de
+esta reproducibilidad se discute en la secci{\'o}n~\ref{sec:repro}.
+
+\subsection{IRF y FEVD}
+\label{sec:irf}
+
+Las funciones de impulso-respuesta (IRF) puntuales describen la respuesta de cada
+variable en cada horizonte a un shock estructural. Las IRF acumuladas se obtienen
+sumando temporalmente, para cada extracci{\'o}n posterior, las respuestas de cada
+variable antes de calcular los cuantiles. Por tanto, las IRF acumuladas son sumas
+de respuestas logar{\'i}tmicas por horizonte y \textbf{no} equivalen a un
+multiplicador fiscal en d{\'o}lares ni a una variaci{\'o}n porcentual permanente
+del nivel de la variable.
+
+La descomposici{\'o}n de la varianza del error de pron{\'o}stico (FEVD) reporta
+participaciones de varianza atribuidas a cada shock; no mide el tama{\~n}o de un
+multiplicador ni establece una relaci{\'o}n causal estructural sin supuestos. Las
+FEVD son proporciones no negativas: en este documento se reportan medianas e
+intervalos y no se usa el t{\'e}rmino ``significativa'' en el sentido de excluir
+cero.
+
+Un punto metodol{\'o}gico central es la escala del shock. Los archivos IRF
+exportados corresponden a los shocks ortogonalizados de la identificaci{\'o}n de
+Cholesky y no a un aumento de 1\% del gasto. En la documentaci{\'o}n del paquete
+\texttt{BVAR}, el primer periodo de una IRF corresponde al impacto contempor{\'a}neo.
+Esto se verific{\'o} en los propios resultados: en el orden 2 la respuesta del
+PIB no petrolero al shock fiscal en el horizonte 1 es exactamente cero, como
+impone la restricci{\'o}n recursiva, y en el orden 1 la IRF acumulada del gasto en
+el horizonte 1 coincide con su IRF puntual. El impacto contempor{\'a}neo del
+shock fiscal sobre \texttt{ln\_gov\_exp} es 0.0316 log-puntos en el orden 1 y
+0.0344 en el orden 2 seg{\'u}n los archivos finales, es decir, no es
+aproximadamente 0.01. Por tanto, en la secci{\'o}n de resultados se reportan
+primero ``respuestas porcentuales ante un shock fiscal ortogonalizado'' con la
+escala indicada. Adicionalmente, y de forma separada, se presenta un ejercicio de
+normalizaci{\'o}n que reescala cada extracci{\'o}n posterior de modo que el
+impacto inicial de \texttt{ln\_gov\_exp} sea 0.01 (un aumento de 1\%), aplicando
+el mismo factor a las respuestas de las dem{\'a}s variables; solo esas
+magnitudes normalizadas se describen como elasticidades din{\'a}micas.
+
+\section{Resultados}
+\label{sec:resultados}
+
+\subsection{Descriptivos y diagn{\'o}sticos}
+\label{sec:diag}
+
+Las figuras~\ref{fig:macro} muestran la evoluci{\'o}n de las series
+macroecon{\'o}micas en niveles y en logaritmos, junto con las ventanas de eventos
+y los quiebres seleccionados. El gasto p{\'u}blico real cae con fuerza al inicio
+de la muestra, repunta hacia 2008--2010 y luego desciende; el PIB no petrolero
+crece de forma sostenida desde 2006; las importaciones muestran una ca{\'i}da
+inicial y una recuperaci{\'o}n posterior. El cr{\'e}dito privado, no incluido en
+la figura, es la serie con mayor crecimiento relativo de la muestra.
+
+\begin{figure}[htbp]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../graphics/figure_1_macro_levels.pdf}
+  \caption{Niveles}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../graphics/figure_2_macro_log.pdf}
+  \caption{Logaritmos y quiebres}
+\end{subfigure}
+\caption{Evoluci{\'o}n de las principales series macroecon{\'o}micas de Timor-Leste, 2002Q1--2023Q4. Las {\'a}reas grises (panel izquierdo) marcan ventanas de eventos; las l{\'i}neas punteadas (panel derecho) marcan quiebres seleccionados por BIC. Unidades: millones de USD a precios constantes de 2015 (gasto, PIB e importaciones). Fuente: elaboraci{\'o}n propia con \texttt{scripts/05\_graphics.R}; datos del ADB \parencite{adb2025}.}
+\label{fig:macro}
+\end{figure}
+
+Los diagn{\'o}sticos disponibles provienen de la corrida de
+\texttt{scripts/06\_hyperparameters\_\allowbreak lag\_\allowbreak bvar\_test.R}. Esa corrida estima un
+modelo de dos rezagos con la misma configuraci{\'o}n de prior, pero su
+ordenamiento interno de variables no coincide exactamente con el orden 1 ni con
+el orden 2 de la especificaci{\'o}n principal; por ello se usan como diagn{\'o}sticos
+de referencia y no como diagn{\'o}sticos exactos de las tablas finales. La
+figura~\ref{fig:estabilidad} muestra que el mayor m{\'o}dulo propio del
+polinomio caracter{\'i}stico es 0.9929 (menor que uno), lo que sugiere un VAR
+estable.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\textwidth]{../graphics/03_bvar_stability_roots.pdf}
+\caption{Ra{\'i}ces inversas del polinomio caracter{\'i}stico del BVAR. El mayor m{\'o}dulo es 0.9929, inferior a uno. Fuente: \texttt{scripts/06\_hyperparameters\_lag\_bvar\_test.R}.}
+\label{fig:estabilidad}
+\end{figure}
+
+Con todo, los diagn{\'o}sticos residuales no son plenamente satisfactorios y deben
+reportarse como limitaciones. Las pruebas de Ljung--Box rechazan la ausencia de
+autocorrelaci{\'o}n en las cinco series (con $p=0.0000$ en cuatro de ellas y
+$p=0.0006$ en el cr{\'e}dito), y las pruebas ARCH rechazan la ausencia de
+heterocedasticidad en cuatro de las cinco; el IPC es la excepci{\'o}n, con
+$p=0.235$. El propio c{\'o}digo advierte que la
+interpolaci{\'o}n Denton--Cholette induce suavidad y autocorrelaci{\'o}n
+intr{\'i}nseca, de modo que estos rechazos reflejan, al menos en parte, el
+m{\'e}todo de desagregaci{\'o}n temporal y no solo una mala especificaci{\'o}n del
+VAR. Las pruebas de convergencia de Geweke no aprueban 5 de los 55 coeficientes
+$\beta$ ni 1 de las 25 varianzas, aunque los tama{\~n}os de muestra efectivos son
+cercanos a 4\,000 en las extracciones conservadas. El modelo no debe presentarse
+como si todos los diagn{\'o}sticos fueran satisfactorios.
+
+\subsection{IRF puntuales al shock fiscal}
+\label{sec:irf_puntual}
+
+Las tablas~\ref{tab:irf_foco} y~\ref{tab:irf_resto} reportan las respuestas
+puntuales, en log-puntos, ante un shock fiscal ortogonalizado de una unidad
+estructural (equivalente a una desviaci{\'o}n est{\'a}ndar del error estructural
+del gasto). Entre corchetes se presenta el intervalo posterior central del 80\%
+(cuantiles 0.10--0.90). Una respuesta se describe como distinta de cero solo
+cuando ese intervalo excluye el cero.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{IRF puntuales del PIB no petrolero y las importaciones ante el shock fiscal (log-puntos; intervalo 80\% entre corchetes)}
+\label{tab:irf_foco}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Orden & Respuesta & $H{=}1$ & $H{=}5$ & $H{=}8$ & $H{=}12$ & $H{=}20$ \\
+\midrule
+1 & PIB no petrolero & $-0.0004\ [-0.0024,0.0016]$ & $0.0063\ [0.0010,0.0116]$ & $0.0141\ [0.0071,0.0218]$ & $0.0184\ [0.0095,0.0303]$ & $0.0106\ [-0.0002,0.0276]$ \\
+1 & Importaciones    & $0.0112\ [0.0058,0.0167]$ & $0.0582\ [0.0385,0.0801]$ & $0.0629\ [0.0356,0.0959]$ & $0.0396\ [0.0064,0.0826]$ & $-0.0050\ [-0.0408,0.0396]$ \\
+2 & PIB no petrolero & $0.0000\ [0.0000,0.0000]$ & $0.0061\ [-0.0002,0.0122]$ & $0.0124\ [0.0038,0.0217]$ & $0.0166\ [0.0054,0.0303]$ & $0.0107\ [-0.0012,0.0322]$ \\
+2 & Importaciones    & $0.0088\ [0.0050,0.0128]$ & $0.0471\ [0.0297,0.0657]$ & $0.0560\ [0.0311,0.0861]$ & $0.0391\ [0.0069,0.0821]$ & $-0.0032\ [-0.0403,0.0501]$ \\
+\bottomrule
+\end{tabular}}
+\par\vspace{0.4em}
+\begin{minipage}{0.95\textwidth}
+\footnotesize\textit{Nota:} Valores tomados de \texttt{irf\_gov\_shock\_full\_order\_1.csv} y \texttt{irf\_gov\_shock\_full\_order\_2.csv}, generados por \texttt{scripts/07\_irf\_fevd.R}. Las respuestas son a un shock ortogonalizado de una desviaci{\'o}n est{\'a}ndar del error estructural del gasto, con impactos contempor{\'a}neos de 0.0316 (orden 1) y 0.0344 (orden 2) sobre \texttt{ln\_gov\_exp}. No son elasticidades por 1\% del gasto.
+\end{minipage}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{IRF puntuales del IPC, el cr{\'e}dito y el propio gasto ante el shock fiscal (log-puntos; intervalo 80\% entre corchetes)}
+\label{tab:irf_resto}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Orden & Respuesta & $H{=}1$ & $H{=}5$ & $H{=}8$ & $H{=}12$ & $H{=}20$ \\
+\midrule
+1 & Gasto p{\'u}blico & $0.0316\ [0.0287,0.0349]$ & $0.0665\ [0.0525,0.0851]$ & $0.0552\ [0.0354,0.0842]$ & $0.0260\ [0.0016,0.0634]$ & $-0.0043\ [-0.0329,0.0306]$ \\
+1 & IPC            & $0.0003\ [-0.0016,0.0024]$ & $0.0050\ [-0.0009,0.0111]$ & $0.0097\ [0.0009,0.0195]$ & $0.0130\ [0.0002,0.0269]$ & $0.0091\ [-0.0101,0.0284]$ \\
+1 & Cr{\'e}dito    & $-0.0004\ [-0.0076,0.0066]$ & $-0.0145\ [-0.0412,0.0144]$ & $-0.0108\ [-0.0478,0.0280]$ & $0.0038\ [-0.0437,0.0516]$ & $0.0251\ [-0.0318,0.0773]$ \\
+2 & Gasto p{\'u}blico & $0.0344\ [0.0314,0.0381]$ & $0.0610\ [0.0470,0.0788]$ & $0.0534\ [0.0333,0.0819]$ & $0.0294\ [0.0048,0.0693]$ & $-0.0019\ [-0.0296,0.0450]$ \\
+2 & IPC            & $0.0002\ [-0.0016,0.0022]$ & $0.0041\ [-0.0017,0.0098]$ & $0.0081\ [-0.0011,0.0175]$ & $0.0111\ [-0.0027,0.0247]$ & $0.0081\ [-0.0149,0.0287]$ \\
+2 & Cr{\'e}dito    & $-0.0013\ [-0.0082,0.0055]$ & $-0.0120\ [-0.0378,0.0140]$ & $-0.0067\ [-0.0432,0.0289]$ & $0.0034\ [-0.0439,0.0519]$ & $0.0218\ [-0.0504,0.0808]$ \\
+\bottomrule
+\end{tabular}}
+\par\vspace{0.4em}
+\begin{minipage}{0.95\textwidth}
+\footnotesize\textit{Nota:} Misma fuente y escala que la tabla~\ref{tab:irf_foco}. El horizonte $H{=}1$ corresponde al impacto contempor{\'a}neo.
+\end{minipage}
+\end{table}
+
+Las figuras~\ref{fig:irf} presentan las IRF puntuales al shock fiscal para las
+cinco variables en los dos {\'o}rdenes.
+
+\begin{figure}[htbp]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../graphics/irf_gov_shock_order_1.pdf}
+  \caption{Orden 1}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../graphics/irf_gov_shock_order_2.pdf}
+  \caption{Orden 2}
+\end{subfigure}
+\caption{IRF puntuales ante el shock del gasto p{\'u}blico, {\'o}rdenes 1 y 2. Bandas: 68\% y 80\%. Unidades: log-puntos ante un shock ortogonalizado de una desviaci{\'o}n est{\'a}ndar. Fuente: \texttt{graphics/irf\_gov\_shock\_order\_*.pdf}, producidas por \texttt{scripts/07\_irf\_fevd.R}.}
+\label{fig:irf}
+\end{figure}
+
+\paragraph{Gasto p{\'u}blico.}
+La respuesta del propio gasto es positiva, persistente y relativamente precisa en
+el corto y mediano plazo. En el orden 1 el intervalo del 80\% excluye el cero
+entre $H{=}1$ y $H{=}12$ (y el del 68\% en la misma ventana); en el orden 2 el
+intervalo del 80\% cubre $H{=}1$--$H{=}12$ y el del 68\% se extiende hasta
+$H{=}13$. La mediana alcanza su
+m{\'a}ximo alrededor de $H{=}5$ (0.0665 en el orden 1 y 0.0610 en el orden 2) y se
+disipa hacia el final del horizonte, cuando el intervalo contiene cero. Esto
+indica un shock transitorio con inercia de aproximadamente dos a tres a{\~n}os,
+no un cambio permanente en el nivel del gasto.
+
+\paragraph{PIB no petrolero.}
+La respuesta del PIB no petrolero es positiva pero rezagada, con forma de joroba.
+El intervalo del 80\% excluye el cero desde $H{=}5$ hasta $H{=}19$ en el orden 1
+y desde $H{=}6$ hasta $H{=}19$ en el orden 2; el del 68\% lo hace desde $H{=}5$
+hasta $H{=}20$ en ambos {\'o}rdenes. La mediana m{\'a}xima es 0.0184 en $H{=}12$
+(orden 1) y 0.0168 en $H{=}13$ (orden 2). La respuesta es cualitativamente
+robusta al orden, aunque su magnitud y su ventana de significancia cambian
+ligeramente. En t{\'e}rminos de escala, la mediana m{\'a}xima equivale a cerca de
+2\% del nivel del PIB ante un shock de una desviaci{\'o}n est{\'a}ndar del error
+fiscal, no ante un aumento de 1\% del gasto.
+
+\paragraph{Importaciones.}
+Las importaciones responden de forma inmediata y con mayor magnitud que el PIB.
+El intervalo del 80\% excluye el cero entre $H{=}1$ y $H{=}12$ en ambos
+{\'o}rdenes; el del 68\% se extiende hasta $H{=}13$ en los dos casos. La mediana
+m{\'a}xima es 0.0643 en $H{=}7$ (orden 1) y 0.0560 en $H{=}8$ (orden 2). Este
+patr{\'o}n es compatible con una alta propensi{\'o}n a importar y con una fuga
+externa temprana del est{\'i}mulo fiscal. La magnitud debe leerse en la misma
+escala que el resto: una desviaci{\'o}n est{\'a}ndar del error fiscal, no 1\% de
+gasto.
+
+\paragraph{IPC.}
+La respuesta del IPC es positiva y peque{\~n}a, y su significancia depende del
+intervalo, del horizonte y del orden. En el orden 1, el intervalo del 68\%
+excluye el cero entre $H{=}5$ y $H{=}16$ y el del 80\% solo entre $H{=}7$ y
+$H{=}12$. En el orden 2, el 68\% excluye cero entre $H{=}6$ y $H{=}13$, pero el
+80\% no lo hace en ning{\'u}n horizonte. La mediana m{\'a}xima es 0.0130 (orden
+1, $H{=}12$) y 0.0114 (orden 2, $H{=}14$). Por tanto, se encuentra evidencia
+moderada de una respuesta positiva de precios en el orden 1 y evidencia m{\'a}s
+d{\'e}bil en el orden 2; en ambos casos la magnitud es reducida y el intervalo
+del 80\% contiene cero hacia el final del horizonte. No corresponde afirmar que
+``no hay inflaci{\'o}n'', ni atribuir la respuesta a capacidad ociosa sin
+evidencia directa; corresponde se{\~n}alar que la respuesta estimada es
+peque{\~n}a, se desvanece y es sensible al orden y al intervalo posterior
+considerado.
+
+\paragraph{Cr{\'e}dito privado.}
+La respuesta puntual del cr{\'e}dito no se distingue de cero en ning{\'u}n
+horizonte: ni el intervalo del 68\% ni el del 80\% excluyen el cero en ninguno de
+los dos {\'o}rdenes. Las medianas muestran una trayectoria ligeramente negativa
+en el corto plazo y ligeramente positiva al final, pero con intervalos amplios.
+No hay evidencia de un desplazamiento (crowding-out) ni de un est{\'i}mulo
+crediticio claro. La redacci{\'o}n prudente es que no se encuentra evidencia
+estad{\'i}stica de una respuesta del cr{\'e}dito al shock fiscal, y no que el
+canal financiero est{\'e} ausente.
+
+\subsection{IRF acumuladas}
+\label{sec:irf_cum}
+
+La tabla~\ref{tab:acum} presenta las respuestas logar{\'i}tmicas acumuladas en el
+horizonte 20 para los dos {\'o}rdenes. Estas magnitudes son sumas de respuestas
+logar{\'i}tmicas, no multiplicadores fiscales en d{\'o}lares ni variaciones
+porcentuales permanentes del nivel.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{threeparttable}
+\caption{Respuestas logar{\'i}tmicas acumuladas en el horizonte 20 ante el shock fiscal (intervalo 80\% entre corchetes)}
+\label{tab:acum}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Respuesta & Orden 1 & Orden 2 \\
+\midrule
+Gasto p{\'u}blico & $0.6072\ [0.3487,1.1193]$ & $0.6276\ [0.3429,1.2024]$ \\
+PIB no petrolero & $0.2330\ [0.1170,0.4040]$ & $0.2195\ [0.0654,0.4372]$ \\
+Importaciones    & $0.6355\ [0.2812,1.1975]$ & $0.5757\ [0.2085,1.1684]$ \\
+IPC              & $0.1784\ [-0.0306,0.3926]$ & $0.1528\ [-0.0798,0.3665]$ \\
+Cr{\'e}dito      & $0.0591\ [-0.5786,0.6787]$ & $0.0477\ [-0.6424,0.7131]$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item Nota: Fuente: \texttt{irf\_cumulative\_order\_1.csv} e \texttt{irf\_cumulative\_order\_2.csv}. Las ventanas acumuladas en las que el intervalo del 80\% excluye cero son: gasto e importaciones, $H{=}1$--$H{=}20$ en ambos {\'o}rdenes; PIB, $H{=}7$--$H{=}20$ (orden 1) y $H{=}8$--$H{=}20$ (orden 2); IPC, $H{=}10$--$H{=}15$ (orden 1) y ninguna (orden 2); cr{\'e}dito, ninguna ventana.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+La respuesta acumulada del gasto p{\'u}blico es positiva y distinta de cero en
+todo el horizonte, lo que refleja persistencia. La respuesta acumulada del PIB
+no petrolero es positiva y distinta de cero desde $H{=}7$ (orden 1) y $H{=}8$
+(orden 2), con medianas de 0.233 y 0.220 en $H{=}20$. La respuesta acumulada de
+las importaciones es la mayor: 0.636 (orden 1) y 0.576 (orden 2) en $H{=}20$, con
+intervalos que excluyen cero. En t{\'e}rminos comparativos, la magnitud
+acumulada de las importaciones es aproximadamente 2.7 veces la del PIB en el
+orden 1 y 2.6 veces en el orden 2, lo que sugiere que una fracci{\'o}n importante
+del est{\'i}mulo se asocia a compras externas. Esta comparaci{\'o}n es una
+proporci{\'o}n de respuestas logar{\'i}tmicas, no un porcentaje del impacto fiscal
+que ``se fuga'' en t{\'e}rminos de d{\'o}lares.
+
+La respuesta acumulada del IPC es positiva con el intervalo del 80\% fuera de
+cero solo en la ventana media, y la del cr{\'e}dito no es distinguible de cero en
+ning{\'u}n horizonte en ninguno de los dos {\'o}rdenes. Las
+figuras~\ref{fig:ircum} muestran las trayectorias acumuladas.
+
+\begin{figure}[htbp]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../graphics/irf_cum_gov_shock_order_1.pdf}
+  \caption{Orden 1}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../graphics/irf_cum_gov_shock_order_2.pdf}
+  \caption{Orden 2}
+\end{subfigure}
+\caption{IRF acumuladas ante el shock del gasto p{\'u}blico, {\'o}rdenes 1 y 2. Unidades: suma de log-puntos por horizonte. Fuente: \texttt{graphics/irf\_cum\_gov\_shock\_order\_*.pdf}.}
+\label{fig:ircum}
+\end{figure}
+
+\paragraph{Ejercicio de normalizaci{\'o}n a un aumento de 1\% del gasto.}
+Para reportar elasticidades din{\'a}micas es necesario reescalar cada extracci{\'o}n
+posterior de modo que el impacto inicial de \texttt{ln\_gov\_exp} sea 0.01
+(aproximadamente 1\%) y aplicar el mismo factor a las respuestas de las dem{\'a}s
+variables. Esa normalizaci{\'o}n draw a draw no puede reconstruirse a partir de
+los cuantiles exportados, porque los intervalos de una misma extracci{\'o}n no
+est{\'a}n alineados con los intervalos del impacto. Como ejercicio
+complementario, se reestim{\'o} la misma especificaci{\'o}n con semilla fija y se
+normaliz{\'o} cada extracci{\'o}n posterior; la tabla~\ref{tab:norm} resume los
+resultados. Estos valores deben leerse como un ejercicio de normalizaci{\'o}n
+reproducible, no como una reestimaci{\'o}n de las tablas finales.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{threeparttable}
+\caption{Respuestas normalizadas a un impacto de 1\% en el gasto: pico y acumulado en $H{=}20$ (mediana; intervalo 80\% entre corchetes)}
+\label{tab:norm}
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Orden & Respuesta & Pico (horizonte) & Acumulado $H{=}20$ \\
+\midrule
+1 & PIB no petrolero & $0.0058$ ($H{=}12$) $[0.0030,0.0094]$ & $0.0741\ [0.0367,0.1269]$ \\
+1 & Importaciones    & $0.0203$ ($H{=}7$) $[0.0125,0.0292]$  & $0.2040\ [0.0889,0.3730]$ \\
+1 & Gasto p{\'u}blico & $0.0211$ ($H{=}5$) $[0.0169,0.0264]$ & $0.1930\ [0.1111,0.3529]$ \\
+1 & IPC              & $0.0041$ ($H{=}12$) $[0.0001,0.0085]$ & $0.0566\ [-0.0097,0.1239]$ \\
+1 & Cr{\'e}dito      & $0.0080$ ($H{=}20$) $[-0.0100,0.0242]$ & $0.0188\ [-0.1837,0.2140]$ \\
+2 & PIB no petrolero & $0.0049$ ($H{=}13$) $[0.0015,0.0092]$ & $0.0643\ [0.0191,0.1258]$ \\
+2 & Importaciones    & $0.0163$ ($H{=}8$) $[0.0092,0.0249]$  & $0.1663\ [0.0605,0.3374]$ \\
+2 & Gasto p{\'u}blico & $0.0178$ ($H{=}5$) $[0.0139,0.0224]$ & $0.1837\ [0.1001,0.3434]$ \\
+2 & IPC              & $0.0033$ ($H{=}14$) $[-0.0014,0.0078]$ & $0.0448\ [-0.0235,0.1057]$ \\
+2 & Cr{\'e}dito      & $0.0064$ ($H{=}20$) $[-0.0142,0.0235]$ & $0.0139\ [-0.1863,0.2094]$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item Nota: Replicaci{\'o}n con semilla fija sobre los datos vigentes; el factor de normalizaci{\'o}n es $0.01/$impacto contempor{\'a}neo de cada extracci{\'o}n posterior. Los valores son elasticidades din{\'a}micas aproximadas respecto a un aumento de 1\% del gasto; las bandas son las de la distribuci{\'o}n normalizada. Tras la normalizaci{\'o}n, las respuestas del PIB y de las importaciones son muy similares entre {\'o}rdenes.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Tras la normalizaci{\'o}n, el pico del PIB no petrolero es cercano a 0.5--0.6\%,
+el de las importaciones a 1.6--2.0\%, el del IPC a 0.3--0.4\% y el del
+cr{\'e}dito queda dentro de intervalos que contienen cero. El gasto p{\'u}blico
+acumula alrededor de 18--19\% de log-puntos en 20 trimestres. Estas magnitudes
+confirman que la fuga hacia importaciones es relativamente grande frente a la
+respuesta del PIB, pero siguen siendo respuestas din{\'a}micas condicionadas al
+modelo y no multiplicadores en d{\'o}lares.
+
+\subsection{FEVD}
+\label{sec:fevd}
+
+La tabla~\ref{tab:fevd} presenta la proporci{\'o}n de la varianza del error de
+pron{\'o}stico de cada variable atribuida al shock del gasto p{\'u}blico en
+$H{=}1$ y $H{=}20$. Se reportan medianas e intervalos del 80\%.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{threeparttable}
+\caption{FEVD: contribuci{\'o}n del shock fiscal a la varianza del error de pron{\'o}stico (mediana; intervalo 80\% entre corchetes)}
+\label{tab:fevd}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& \multicolumn{2}{c}{Orden 1} & \multicolumn{2}{c}{Orden 2} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Respuesta & $H{=}1$ & $H{=}20$ & $H{=}1$ & $H{=}20$ \\
+\midrule
+Gasto p{\'u}blico & $1.000\ [1.000,1.000]$ & $0.565\ [0.292,0.780]$ & $0.995\ [0.968,1.000]$ & $0.503\ [0.218,0.731]$ \\
+PIB no petrolero & $0.005\ [0.000,0.032]$ & $0.355\ [0.107,0.613]$ & $0.000\ [0.000,0.000]$ & $0.236\ [0.036,0.520]$ \\
+Importaciones    & $0.078\ [0.022,0.163]$ & $0.348\ [0.134,0.581]$ & $0.090\ [0.030,0.174]$ & $0.271\ [0.086,0.519]$ \\
+IPC              & $0.006\ [0.000,0.033]$ & $0.126\ [0.015,0.438]$ & $0.005\ [0.000,0.029]$ & $0.102\ [0.010,0.411]$ \\
+Cr{\'e}dito      & $0.006\ [0.000,0.032]$ & $0.080\ [0.017,0.240]$ & $0.005\ [0.000,0.031]$ & $0.069\ [0.012,0.226]$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item Nota: Proporciones de varianza, no tama{\~n}os de multiplicador. Los valores se calcularon directamente a partir de las extracciones posteriores de la FEVD, tomando cuantiles de las participaciones de cada extracci{\'o}n. El archivo \texttt{fevd\_order\_*.csv} del repositorio no sirve para leer estos intervalos: la funci{\'o}n de \texttt{BVAR} normaliza cuantiles marginales despu{\'e}s de calcularlos, de modo que las columnas 0.10 y 0.90 no son cuantiles posteriores genuinos de la participaci{\'o}n (v{\'e}ase la secci{\'o}n~\ref{sec:repro}). Las proporciones de cada bloque de shocks suman uno en cada extracci{\'o}n.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+En $H{=}1$, el shock fiscal explica casi toda la varianza del propio gasto
+(99--100\%) y una fracci{\'o}n peque{\~n}a de la varianza de las importaciones
+(8--9\%); por construcci{\'o}n de la identificaci{\'o}n, explica cero (orden 2) o
+casi cero (0.5\%, orden 1) de la varianza del PIB en el impacto. En $H{=}20$, el
+shock fiscal explica 35.5\% de la varianza del PIB no petrolero en el orden 1 y
+23.6\% en el orden 2; 34.8\% y 27.1\% de la varianza de las importaciones; 12.6\%
+y 10.2\% de la del IPC; y 8.0\% y 6.9\% de la del cr{\'e}dito. La contribuci{\'o}n
+del propio gasto a su varianza cae a 56.5\% en el orden 1 y 50.3\% en el orden 2
+en $H{=}20$, lo que indica retroalimentaci{\'o}n parcial de otras variables. La
+FEVD es cualitativamente similar entre {\'o}rdenes, con diferencias moderadas en
+las magnitudes.
+
+\subsection{Comparaci{\'o}n entre identificaciones}
+\label{sec:comparacion}
+
+Los resultados cualitativamente consistentes entre {\'o}rdenes son: la
+persistencia transitoria del gasto p{\'u}blico; la respuesta positiva y
+significativa del PIB no petrolero a partir del quinto o sexto trimestre; la
+respuesta inmediata, positiva y mayor de las importaciones; la respuesta positiva
+pero peque{\~n}a del IPC en el corto y mediano plazo; y la ausencia de una
+respuesta del cr{\'e}dito distinguible de cero. La contribuci{\'o}n del shock
+fiscal a la varianza del PIB en $H{=}20$ es 35.5\% en el orden 1 y 23.6\% en el
+orden 2; la de las importaciones es 34.8\% y 27.1\%, respectivamente.
+
+Los resultados sensibles al orden son de magnitud y de ventana de significancia,
+no de signo. La ventana del PIB comienza en $H{=}5$ en el orden 1 y en $H{=}6$
+en el orden 2; la del IPC se reduce hasta desaparecer al 80\% en el orden 2. La
+magnitud puntual del gasto difiere porque cada corrida tiene su propia escala de
+shock; tras la normalizaci{\'o}n, esas diferencias se reducen. El cr{\'e}dito no
+cambia su conclusi{\'o}n b{\'a}sica entre {\'o}rdenes: no hay respuesta
+distinguible de cero. En ning{\'u}n caso corresponde interpretar que un orden
+``prueba'' el mecanismo causal; ambos son sensibilidades bajo supuestos
+recursivos.
+
+\subsection{Nota de reproducibilidad y discrepancias}
+\label{sec:repro}
+
+Se documentan tres cuestiones que afectan la interpretaci{\'o}n y la
+reproducibilidad:
+
+\begin{enumerate}
+\item \textbf{Consistencia de la base de importaciones.} Los resultados de IRF y
+FEVD se generan a partir de
+\texttt{Data/csv/timor\_quarterly\_log\_and\_dummys.csv}. En una versi{\'o}n
+previa del repositorio, esa base conservaba una serie de importaciones distinta
+de \texttt{timor\_quarterly\_log.csv}, con diferencias de hasta 0.048
+log-puntos. Tras reejecutar \texttt{scripts/03\_structural\_failures.R}, ambas
+bases coinciden en \texttt{ln\_imports} (diferencia m{\'a}xima igual a cero) y
+las tablas de este documento usan la base ya conciliada.
+\item \textbf{Normalizaci{\'o}n de la FEVD exportada.} La funci{\'o}n
+\texttt{fevd.bvar\_fevd} del paquete \texttt{BVAR} calcula cuantiles marginales
+de las participaciones por impulso y luego las renormaliza para que sumen uno.
+Esa renormalizaci{\'o}n se aplica despu{\'e}s de tomar los cuantiles, de modo que
+las columnas rotuladas 0.10 y 0.90 en \texttt{fevd\_order\_*.csv} no son
+cuantiles posteriores genuinos de la participaci{\'o}n y pueden no ser mon{\'o}tonas.
+La tabla~\ref{tab:fevd} se calcula directamente a partir de
+\texttt{fevd\$fevd}, cuyas participaciones suman uno en cada extracci{\'o}n. Es un
+problema del c{\'o}digo de exportaci{\'o}n, no de la estimaci{\'o}n.
+\item \textbf{Semilla y notas auxiliares.} \texttt{scripts/07\_irf\_fevd.R} fija
+la semilla 54973997 antes de la primera estimaci{\'o}n. Como no se vuelve a fijar
+una semilla antes del segundo modelo, la segunda orden se reproduce al ejecutar
+el script completo en el mismo orden. Las notas auxiliares anteriores fueron
+retiradas; las cifras de este documento se tomaron de los CSV regenerados y de
+las extracciones posteriores.
+\end{enumerate}
+
+Como consecuencia, las conclusiones que dependen de la magnitud exacta deben
+considerarse provisionales. Las conclusiones cualitativas (fuga externa
+relativamente grande, respuesta positiva pero transitoria del gasto, respuesta
+rezagada del PIB, respuesta de precios peque{\~n}a y ausencia de respuesta
+crediticia clara) son consistentes con la evidencia disponible, pero descansan
+en un modelo con muestra corta, series desagregadas y diagn{\'o}sticos
+residuales imperfectos.
+
+\section{Consideraciones finales}
+\label{sec:final}
+
+El BVAR trimestral sugiere que el gasto p{\'u}blico de Timor-Leste tiene un
+efecto transitorio sobre s{\'i} mismo y una asociaci{\'o}n positiva, rezagada y
+moderada con el PIB no petrolero. Las importaciones responden antes y con mayor
+magnitud, lo que es compatible con un canal de fuga externa. No se encuentra
+evidencia de una respuesta del cr{\'e}dito privado y la respuesta de precios,
+aunque positiva en el corto y mediano plazo, es peque{\~n}a y sensible al
+intervalo posterior. Estas conclusiones son evidencia condicionada al modelo,
+al prior, a la desagregaci{\'o}n temporal de series anuales y al orden recursivo
+de identificaci{\'o}n. No deben traducirse a un multiplicador fiscal en
+d{\'o}lares ni interpretarse como una prueba de un orden causal {\'u}nico. La
+principal recomendaci{\'o}n metodol{\'o}gica es corregir la exportaci{\'o}n de
+FEVD para que los cuantiles se calculen sobre participaciones ya normalizadas por
+extracci{\'o}n. La base de importaciones ya est{\'a} conciliada entre archivos y
+la semilla del script principal est{\'a} fijada; conviene a{\~n}adir una semilla
+expl{\'i}cita antes del segundo modelo para reproducir cada orden de forma
+independiente.
+
+\printbibliography[title={Referencias}]
+
+\end{document}
