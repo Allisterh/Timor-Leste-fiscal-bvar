@@ -32,7 +32,7 @@ exogenous <- quarterly_log_dummy %>%
 
 #prior lag selection and initial hyperparameters ----
 
-#the series has a unit root so arima can't with na
+# The series have unit roots and missing values; use the variance of first differences to scale the prior.
 var_base <- as.numeric(apply(diff(endogenous), 2, var, na.rm = TRUE))
 
 #pmax() force the variance to be less than 1e-5
