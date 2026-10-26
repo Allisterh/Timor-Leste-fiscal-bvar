@@ -58,13 +58,13 @@ jobs:
 
       - name: Hybrid robustness
         run: |
-          Rscript scripts/10_hybrid_robustness.R
+          Rscript scripts/09_hybrid_robustness.R
 
       - name: Local projections
         run: |
-          SAMPLE=official Rscript scripts/09_local_projections.R
-          SAMPLE=official_nsa Rscript scripts/09_local_projections.R
-          SAMPLE=long Rscript scripts/09_local_projections.R
+          SAMPLE=official Rscript scripts/08_local_projections.R
+          SAMPLE=official_nsa Rscript scripts/08_local_projections.R
+          SAMPLE=long Rscript scripts/08_local_projections.R
 
       - name: Dashboard data
         run: Rscript scripts/build_dashboard_data.R
