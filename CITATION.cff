@@ -3,8 +3,11 @@ message: "If you use this software, please cite it as below."
 authors:
   - family-names: "Lopez"
     given-names: "Emerson"
-    orcid: "https://orcid.org/0009-0009-6423-2883"  
-title: "Timor-Leste Fiscal BVAR: Fiscal Transmission and Import Leakage Analysis"
+    orcid: "https://orcid.org/0009-0009-6423-2883"
+  - family-names: "Gomez"
+    given-names: "Julio"
+title: "Temporal Disaggregation and the Illusion of Fiscal
+Leakage: Evidence from Timor-Leste"
 version: 1.0.0
 date-released: 2026-09-19
 url: "https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar"
