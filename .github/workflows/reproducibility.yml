@@ -2,7 +2,7 @@ name: BVAR Reproduction Pipeline
 
 on:
   push:
-    branches: [ "main", "new-dataset" ]
+    branches: [ "main", "new-dataset", "En-tex" ]
   pull_request:
     branches: [ "main" ]
 
@@ -14,7 +14,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install System Dependencies (Poppler & GSL)
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y poppler-utils libgsl-dev
@@ -27,26 +27,44 @@ jobs:
       - name: Install R packages
         run: |
           Rscript -e "install.packages('pacman', repos='https://cloud.r-project.org')"
-          Rscript -e "pacman::p_load(dplyr, magrittr, zoo, janitor, readr, tidyr, ggplot2, tibble, stringr, tidyverse)"
+          Rscript -e "pacman::p_load(tidyverse, dplyr, magrittr, zoo, timeSeries, janitor, readr, tidyr, ggplot2, tibble, stringr, readxl, jsonlite, lubridate, seasonal, x13binary, forecast, BVAR, tempdisagg, strucchange, tseries, urca, sandwich, lmtest, coda, FinTS)"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install Python Dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run Sequential Analysis Pipeline
+      - name: Build long-sample data
         run: |
           Rscript scripts/01_cleaning.R
           Rscript scripts/02_dessagregation.R
           Rscript scripts/03_structural_failures.R
+
+      - name: Build official quarterly data
+        run: |
+          Rscript scripts/00_build_quarterly_official.R
+
+      - name: Diagnostics and descriptive figures
+        run: |
           Rscript scripts/04_stationary_test.R
           Rscript scripts/05_graphics.R
           Rscript scripts/06_hyperparameters_lag_bvar_test.R
-          Rscript scripts/07_irf_fevd.R
-          python scripts/08.5_irf_combined.py
-          Rscript scripts/08_view_irf_data.R
+
+      - name: BVAR official sample
+        run: |
+          SAMPLE=official_3var Rscript scripts/07_irf_fevd.R
+          SAMPLE=official_5var Rscript scripts/07_irf_fevd.R
+          SAMPLE=official_nsa Rscript scripts/07_irf_fevd.R
+
+      - name: BVAR long-sample comparison
+        run: |
+          SAMPLE=long_3var Rscript scripts/07_irf_fevd.R
+          SAMPLE=long Rscript scripts/07_irf_fevd.R
+
+      - name: Hybrid robustness
+        run: |
+          Rscript scripts/10_hybrid_robustness.R
+
+      - name: Local projections
+        run: |
+          SAMPLE=official Rscript scripts/09_local_projections.R
+          SAMPLE=official_nsa Rscript scripts/09_local_projections.R
+          SAMPLE=long Rscript scripts/09_local_projections.R
+
+      - name: Dashboard data
+        run: Rscript scripts/build_dashboard_data.R
