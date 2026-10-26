@@ -1,0 +1,2 @@
+sample,n_obs,n_used,lags,horizon,shock_sd,impact_gov
+long,88,86,2,12,1.1086644273106427,-0.0024661899213875745
