@@ -21,11 +21,11 @@ Flow variables (real non-oil GDP, government expenditure, and real imports) are 
 
 The official baseline BVAR includes three endogenous variables:
 
-| Variable     | Description                                   |
-|--------------|-----------------------------------------------|
+| Variable     | Description                                      |
+|--------------|--------------------------------------------------|
 | `ln_gov_exp` | General government final consumption expenditure |
-| `ln_gdp_non` | Real non-oil GDP                              |
-| `ln_imports` | Real imports of goods and services            |
+| `ln_gdp_non` | Real non-oil GDP                                 |
+| `ln_imports` | Real imports of goods and services               |
 
 The five-variable long-sample comparison and the official five-variable robustness check add `ln_cpi` (consumer price index) and `ln_credit` (private credit). Variables are in natural logarithms. Monetary variables (except CPI) are measured in millions of US dollars; CPI is an index.
 
