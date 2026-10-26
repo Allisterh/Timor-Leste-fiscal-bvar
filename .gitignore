@@ -3,13 +3,8 @@
 .Renviron
 .Rhistory
 README.html
-significant_irf_automatic.md
-
-#nop
-scripts/06_bvartools.R
 
 # .md
-significant_irf.md
 irf.md
 fevd.md
 agents.md
@@ -23,8 +18,26 @@ tmp2.png
 #shiny
 dashboard/rsconnect/
 
+# downloaded source
+Data/data-source/NatlAccts2023en.pdf
+Data/data-source/NatlAccts2023en.txt
+
 #tex
 metodologia_resultados*
+Timor-Leste-bvar
+Tex/Timor-Leste-bvar.aux
+Tex/Timor-Leste-bvar.bbl
+Tex/Timor-Leste-bvar.bcf
+Tex/Timor-Leste-bvar.blg
+Tex/Timor-Leste-bvar.fdb_latexmk
+Tex/Timor-Leste-bvar.fls
+Tex/Timor-Leste-bvar.log
+Tex/Timor-Leste-bvar.out
+Tex/Timor-Leste-bvar.run.xml
+Tex/Timor-Leste-bvar.synctex.gz
 
 !metodologia_resultados*.tex
 !metodologia_resultados*.pdf
+
+!Timor-Leste-bvar*.tex
+!Timor-Leste-bvar*.pdf
