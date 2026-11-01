@@ -1,0 +1,5 @@
+Long interpolated samples overstate fiscal leakage in Timor-Leste.
+INETL quarterly indicators imply near-zero import leakages.
+Local projections are the baseline; Bayesian VAR confirms the result.
+A 2x2 common-window design separates interpolation from sample effects.
+Use indicator-based data and report common-window tests.

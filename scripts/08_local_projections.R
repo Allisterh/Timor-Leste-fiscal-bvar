@@ -14,12 +14,94 @@ config <- switch(
   official = list(
     file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
     exo = c("shock_2016", "shock_covid"),
-    suffix = "_official"
+    suffix = "_official",
+    core_vars = c("ln_gov_exp", "ln_imports", "ln_gdp_non"),
+    fiscal_var = "ln_gov_exp",
+    response_vars = c(
+      "ln_gov_exp", "ln_imports", "ln_gdp_non",
+      "ln_private_demand", "ln_gdp_ex_gov", "ln_cpi", "ln_credit"
+    ),
+    response_labels = c(
+      "ln_gov_exp" = "Government expenditure",
+      "ln_imports" = "Imports",
+      "ln_gdp_non" = "Non-oil GDP",
+      "ln_private_demand" = "Private demand",
+      "ln_gdp_ex_gov" = "GDP excl. GFC",
+      "ln_cpi" = "CPI",
+      "ln_credit" = "Private credit"
+    ),
+    response_levels = c(
+      "Imports", "Non-oil GDP", "Private demand", "GDP excl. GFC",
+      "CPI", "Private credit"
+    )
+  ),
+  official_broad = list(
+    file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
+    exo = c("shock_2016", "shock_covid"),
+    suffix = "_official_broad",
+    core_vars = c("ln_gov_broad", "ln_imports", "ln_gdp_non"),
+    fiscal_var = "ln_gov_broad",
+    response_vars = c(
+      "ln_gov_broad", "ln_imports", "ln_gdp_non",
+      "ln_private_demand", "ln_cpi", "ln_credit"
+    ),
+    response_labels = c(
+      "ln_gov_broad" = "Broad government expenditure",
+      "ln_imports" = "Imports",
+      "ln_gdp_non" = "Non-oil GDP",
+      "ln_private_demand" = "Private demand",
+      "ln_cpi" = "CPI",
+      "ln_credit" = "Private credit"
+    ),
+    response_levels = c(
+      "Imports", "Non-oil GDP", "Private demand", "CPI", "Private credit"
+    )
+  ),
+  official_broad_dp = list(
+    file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
+    exo = c("shock_2016", "shock_covid"),
+    suffix = "_official_broad_dp",
+    core_vars = c("ln_gov_broad_dp", "ln_imports", "ln_gdp_non"),
+    fiscal_var = "ln_gov_broad_dp",
+    response_vars = c(
+      "ln_gov_broad_dp", "ln_imports", "ln_gdp_non",
+      "ln_private_demand", "ln_cpi", "ln_credit"
+    ),
+    response_labels = c(
+      "ln_gov_broad_dp" = "Public and donor expenditure",
+      "ln_imports" = "Imports",
+      "ln_gdp_non" = "Non-oil GDP",
+      "ln_private_demand" = "Private demand",
+      "ln_cpi" = "CPI",
+      "ln_credit" = "Private credit"
+    ),
+    response_levels = c(
+      "Imports", "Non-oil GDP", "Private demand", "CPI", "Private credit"
+    )
   ),
   official_nsa = list(
     file = "Data/csv/timor_quarterly_official_nsa_log_and_dummys.csv",
     exo = c("shock_2016", "shock_covid", "q2", "q3", "q4"),
-    suffix = "_official_nsa"
+    suffix = "_official_nsa",
+    core_vars = c("ln_gov_exp", "ln_imports", "ln_gdp_non"),
+    fiscal_var = "ln_gov_exp",
+    response_vars = c(
+      "ln_gov_exp", "ln_imports", "ln_gdp_non",
+      "ln_private_demand", "ln_gdp_ex_gov", "ln_cpi", "ln_credit"
+    ),
+    response_labels = c(
+      "ln_gov_exp" = "Government expenditure",
+      "ln_imports" = "Imports",
+      "ln_gdp_non" = "Non-oil GDP",
+      "ln_private_demand" = "Private demand",
+      "ln_gdp_ex_gov" = "GDP excl. GFC",
+      "ln_cpi" = "CPI",
+      "ln_credit" = "Private credit"
+    ),
+    response_levels = c(
+      "Imports", "Non-oil GDP", "Private demand", "GDP excl. GFC",
+      "CPI", "Private credit"
+    )
   ),
   long = list(
     file = "Data/csv/timor_quarterly_log_and_dummys.csv",
@@ -27,9 +109,24 @@ config <- switch(
       "shock_2006", "shock_2009", "shock_2012",
       "shock_2016", "shock_covid"
     ),
-    suffix = "_long"
+    suffix = "_long",
+    core_vars = c("ln_gov_exp", "ln_imports", "ln_gdp_non"),
+    fiscal_var = "ln_gov_exp",
+    response_vars = c(
+      "ln_gov_exp", "ln_imports", "ln_gdp_non", "ln_cpi", "ln_credit"
+    ),
+    response_labels = c(
+      "ln_gov_exp" = "Government expenditure",
+      "ln_imports" = "Imports",
+      "ln_gdp_non" = "Non-oil GDP",
+      "ln_cpi" = "CPI",
+      "ln_credit" = "Private credit"
+    ),
+    response_levels = c(
+      "Imports", "Non-oil GDP", "CPI", "Private credit"
+    )
   ),
-  stop("Unknown SAMPLE. Use official, official_nsa, or long.")
+  stop("Unknown SAMPLE. Use official, official_broad, official_broad_dp, official_nsa, or long.")
 )
 
 data <- readr::read_csv(config$file, show_col_types = FALSE)
@@ -42,17 +139,9 @@ LAGS <- 2
 NW_LAG <- 6
 CONF_90 <- stats::qnorm(0.95)
 
-core_vars <- c("ln_gov_exp", "ln_imports", "ln_gdp_non")
-response_vars <- c(
-  "ln_gov_exp", "ln_imports", "ln_gdp_non", "ln_cpi", "ln_credit"
-)
-response_labels <- c(
-  "ln_gov_exp" = "Government expenditure",
-  "ln_imports" = "Imports",
-  "ln_gdp_non" = "Non-oil GDP",
-  "ln_cpi" = "CPI",
-  "ln_credit" = "Private credit"
-)
+core_vars <- config$core_vars
+response_vars <- config$response_vars
+fiscal_var <- config$fiscal_var
 
 #reduced-form VAR and recursively identified fiscal shock
 
@@ -81,7 +170,7 @@ U <- Y[tt, , drop = FALSE] - X %*% B
 
 Sigma <- crossprod(U) / (nrow(U) - ncol(X))
 A <- t(chol(Sigma))
-eps <- U %*% solve(A)
+eps <- U %*% t(solve(A))
 
 shock_raw <- as.numeric(eps[, 1])
 sd_shock <- stats::sd(shock_raw)
@@ -159,11 +248,11 @@ lp_results <- dplyr::bind_rows(core_results, aux_results) %>%
 
 #normalise so that the impact response of government expenditure is 1%.
 impact_gov <- lp_results %>%
-  dplyr::filter(response == "ln_gov_exp", horizon == 0) %>%
+  dplyr::filter(response == fiscal_var, horizon == 0) %>%
   dplyr::pull(irf)
 
-if (length(impact_gov) != 1 || impact_gov == 0) {
-  stop("Could not recover a valid impact response for government expenditure.")
+if (length(impact_gov) != 1 || !is.finite(impact_gov) || impact_gov <= 0) {
+  stop("Could not recover a valid positive impact response for government expenditure.")
 }
 
 lp_results <- lp_results %>%
@@ -181,7 +270,7 @@ lp_results <- lp_results %>%
       irf_1pct - 1.645 * se_1pct,
       irf_1pct + 1.645 * se_1pct
     ),
-    response_label = dplyr::recode(response, !!!response_labels)
+    response_label = dplyr::recode(response, !!!config$response_labels)
   )
 
 readr::write_csv(
@@ -192,11 +281,11 @@ readr::write_csv(
 #plot
 
 plot_data <- lp_results %>%
-  dplyr::filter(response != "ln_gov_exp") %>%
+  dplyr::filter(response != fiscal_var) %>%
   dplyr::mutate(
     response_label = factor(
       response_label,
-      levels = c("Imports", "Non-oil GDP", "CPI", "Private credit")
+      levels = config$response_levels
     )
   )
 
@@ -242,6 +331,7 @@ readr::write_csv(
     lags = LAGS,
     horizon = H,
     shock_sd = sd_shock,
+    fiscal_var = fiscal_var,
     impact_gov = impact_gov,
     nw_lag = NW_LAG,
     engine = "lpirfs::lp_lin_iv"
@@ -252,7 +342,7 @@ readr::write_csv(
 message("Local projections finished for sample: ", sample_name)
 print(
   lp_results %>%
-    dplyr::filter(response != "ln_gov_exp") %>%
+    dplyr::filter(response != fiscal_var) %>%
     dplyr::select(response_label, horizon, irf_1pct, lower68, upper68) %>%
     dplyr::slice_head(n = 8)
 )

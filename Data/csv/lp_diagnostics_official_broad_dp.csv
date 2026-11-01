@@ -1,0 +1,2 @@
+sample,n_obs,n_used,lags,horizon,shock_sd,fiscal_var,impact_gov,nw_lag,engine
+official_broad_dp,40,38,2,12,0.8853156407653622,ln_gov_broad_dp,0.10053473982748042,6,lpirfs::lp_lin_iv

@@ -55,7 +55,22 @@ run_tests <- function(file, sample_name, suffix) {
 
   out <- adf_kpss %>%
     dplyr::left_join(za, by = "variable") %>%
-    dplyr::mutate(sample = sample_name, .before = 1)
+    dplyr::mutate(
+      adf_stationary = p_val_adf < 0.05,
+      kpss_stationary = p_val_kpss > 0.05,
+      za_stationary = is_stationary,
+      n_stationary = rowSums(
+        cbind(adf_stationary, kpss_stationary, za_stationary),
+        na.rm = TRUE
+      ),
+      conclusion = dplyr::case_when(
+        n_stationary == 3 ~ "Stationary",
+        n_stationary == 0 ~ "Unit root",
+        TRUE ~ "Mixed"
+      ),
+      sample = sample_name,
+      .before = 1
+    )
 
   readr::write_csv(
     out,

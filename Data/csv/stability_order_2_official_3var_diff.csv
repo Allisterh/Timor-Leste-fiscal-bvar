@@ -1,2 +1,2 @@
-sample,order,max_modulus,n_obs,horizon
-official_3var_diff,2,0.6299848795149181,39,12
+sample,sample_label,order,max_modulus,n_obs,horizon
+official,Official 2014-2023,2,0.634350378180029,39,12

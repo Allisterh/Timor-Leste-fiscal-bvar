@@ -17,7 +17,7 @@ out_dir <- file.path(repo_root, "dashboard")
 
 bvar_samples <- tibble::tribble(
   ~sample,        ~sample_label,
-  "official_3var", "Official 2014-2023 (3-variable)",
+  "official_3var", "INETL 2014-2023 (3-variable)",
   "long_3var",     "Long 2002-2023 (3-variable)"
 )
 
@@ -76,7 +76,7 @@ readr::write_csv(bvar_data, file.path(out_dir, "bvar_irf.csv"))
 
 lp_samples <- tibble::tribble(
   ~sample,     ~sample_label,
-  "official",  "Official 2014-2023",
+  "official",  "INETL 2014-2023",
   "long",      "Long 2002-2023"
 )
 
@@ -84,6 +84,8 @@ lp_labels <- c(
   ln_gov_exp = "Government expenditure",
   ln_imports = "Imports",
   ln_gdp_non = "Non-oil GDP",
+  ln_private_demand = "Private demand",
+  ln_gdp_ex_gov = "GDP excl. GFC",
   ln_cpi = "CPI",
   ln_credit = "Private credit"
 )

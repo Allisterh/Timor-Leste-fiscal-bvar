@@ -1,17 +1,17 @@
 # Timor-Leste Fiscal BVAR
 
-This repository contains the data-processing pipeline, Bayesian Vector Autoregression (BVAR) estimates, local projections, impulse-response functions (IRFs), forecast error variance decompositions (FEVDs), and visual outputs used to study fiscal transmission and fiscal leakage in Timor-Leste.
+This repository contains the data-processing pipeline, local projections (the preferred baseline), Bayesian Vector Autoregression (BVAR) robustness estimates, impulse-response functions (IRFs), forecast error variance decompositions (FEVDs), and visual outputs used to study fiscal transmission and fiscal leakage in Timor-Leste.
 
 The central question is how public spending affects non-oil GDP and what portion of that spending is related to imports. The paper compares two samples:
 
-- **Official quarterly national accounts, 2014Q1–2023Q4 (40 observations)**, built from INETL Table 7.1. This is the baseline.
-- **Long interpolated sample, 2002Q1–2023Q4 (88 observations)**, built from annual ADB data with Denton–Cholette temporal disaggregation. This is the comparison that reproduces earlier results.
+- **INETL quarterly indicator, 2014Q1–2023Q4 (40 observations)**, built from INETL Table 7.1. This is the baseline, estimated with local projections; the BVAR is a robustness check.
+- **Long interpolated sample, 2002Q1–2023Q4 (88 observations)**, built from annual ADB data with Denton–Cholette temporal disaggregation. This is the long-sample benchmark.
 
-The main finding is that the strong import-leakage result obtained from the long interpolated sample does not survive with official quarterly data. A common-window 2x2 decomposition shows that interpolation alone is not sufficient: neither interpolating the fiscal series nor interpolating the outcome series reproduces the leakage over 2014–2023. The long-sample result is therefore fragile and sample-window-dependent, not a mechanical consequence of temporal disaggregation; the pre-2014 subsample alone is unstable, so the earlier period cannot be interpreted separately.
+The main finding is that the strong import-leakage result obtained from the long interpolated sample does not survive with the INETL quarterly indicator. Local projections estimate small import responses in 2014–2023, and a common-window 2x2 decomposition shows that interpolation alone is not sufficient: neither interpolating the fiscal series nor interpolating the outcome series reproduces the leakage over that window. The long-sample result is therefore fragile and sample-window-dependent, not a mechanical consequence of temporal disaggregation; the pre-2014 subsample is stable but small, and the long-sample estimate is sensitive to the event-dummy specification. We recommend using indicator-based quarterly data for inference and treating long interpolated samples as historical benchmarks.
 
 ## Temporal disaggregation methodology
 
-Timor-Leste has a relatively short macroeconomic history, and most national accounts and monetary indicators are reported annually. The long-sample comparison therefore disaggregates the annual series using temporal-disaggregation methods. The official baseline does not use interpolation.
+Timor-Leste has a relatively short macroeconomic history, and most national accounts and monetary indicators are reported annually. The long-sample comparison therefore disaggregates the annual series using univariate temporal-disaggregation methods. The baseline uses local projections and does not use our univariate interpolation, but it is not raw quarterly data either: INETL builds its quarterly indicator by replicating annual GDP and disaggregating it with quarterly indicators. The comparison therefore isolates the incremental effect of univariate interpolation and the sample window, not the difference between raw and constructed data.
 
 Initially, quarterly import data from Trade Map were tested as a high-frequency indicator for Chow–Lin disaggregation. The external indicator was not statistically significant, so the univariate proportional Denton–Cholette method (Denton, 1971; Cholette, 1984) is applied to all long-sample series.
 
@@ -19,7 +19,7 @@ Flow variables (real non-oil GDP, government expenditure, and real imports) are 
 
 ## Variables and units
 
-The official baseline BVAR includes three endogenous variables:
+The baseline local projections and the robustness BVAR using the INETL indicator include three endogenous variables:
 
 | Variable     | Description                                      |
 |--------------|--------------------------------------------------|
@@ -27,13 +27,13 @@ The official baseline BVAR includes three endogenous variables:
 | `ln_gdp_non` | Real non-oil GDP                                 |
 | `ln_imports` | Real imports of goods and services               |
 
-The five-variable long-sample comparison and the official five-variable robustness check add `ln_cpi` (consumer price index) and `ln_credit` (private credit). Variables are in natural logarithms. Monetary variables (except CPI) are measured in millions of US dollars; CPI is an index.
+The five-variable long-sample comparison and the five-variable INETL robustness check add `ln_cpi` (consumer price index) and `ln_credit` (private credit). Variables are in natural logarithms. Monetary variables (except CPI) are measured in millions of US dollars; CPI is an index.
 
-The official sample uses two exogenous indicators: `shock_2016` and `shock_covid`. The long sample uses five: `shock_2006`, `shock_2009`, `shock_2012`, `shock_2016`, and `shock_covid`.
+The INETL sample uses two exogenous indicators: `shock_2016` and `shock_covid`. The long sample uses five: `shock_2006`, `shock_2009`, `shock_2012`, `shock_2016`, and `shock_covid`.
 
 ## Data sources
 
-- Official quarterly national accounts: [INETL National Accounts 2004–2023](https://www.laohamutuk.org/DVD/DGS/NatlAccts2023en.pdf), Table 7.1, constant 2015 prices.
+- INETL quarterly indicator: [INETL National Accounts 2004–2023](https://www.laohamutuk.org/DVD/DGS/NatlAccts2023en.pdf), Table 7.1, constant 2015 prices.
 - Annual macroeconomic indicators for the long sample: [Asian Development Bank Key Indicators - Timor-Leste](https://kidb.adb.org/economies/timor-leste), stored in `Data/data-source/`.
 - Quarterly import indicator for the long sample: [Trade Map - countries/economy groups](https://www.trademap.org), stored in `Data/data-source/`.
 - Consumer price index: DNE monthly CPI, stored in `Data/data-source/`.
@@ -53,7 +53,7 @@ dashboard/ Shiny dashboard and dashboard-ready IRF data
 
 ## Analysis workflow
 
-The baseline uses the official quarterly national accounts for 2014Q1–2023Q4. The 2002–2023 series built by temporal disaggregation is retained as a long-sample comparison. The main finding is that the strong import-leakage result from the long interpolated sample does not survive with official quarterly data, and a common-window 2x2 shows that interpolation alone does not reproduce it over 2014–2023.
+The baseline uses the INETL quarterly indicator for 2014Q1–2023Q4. The 2002–2023 series built by univariate temporal disaggregation is retained as a long-sample comparison. The main finding is that the strong import-leakage result from the long interpolated sample does not survive with the INETL indicator, and a common-window 2x2 shows that interpolation alone does not reproduce it over 2014–2023. Local projections are the preferred baseline; the BVAR is a robustness check.
 
 Run the scripts in the following order:
 
@@ -64,24 +64,27 @@ Run the scripts in the following order:
 5.  `scripts/04_stationary_test.R` runs ADF, KPSS, and Zivot-Andrews tests.
 6.  `scripts/05_graphics.R` creates the macroeconomic level and log-scale figures.
 7.  `scripts/06_hyperparameters_lag_bvar_test.R` compares lag lengths using BVAR log-marginal likelihoods for the long sample.
-8.  `scripts/07_irf_fevd.R` estimates the BVAR, generates IRFs, cumulative IRFs, FEVDs, and stability diagnostics for two Cholesky orderings. Set `SAMPLE` to `official_3var` (baseline), `official_5var`, `official_nsa`, `long_3var`, or `long`.
-9.  `scripts/08_local_projections.R` estimates local projections for the official, NSA, and long samples with `lpirfs::lp_lin_iv`. The three core responses use two lags of the core variables; CPI and private credit use the same estimator with those lags as exogenous controls.
-10. `scripts/09_hybrid_robustness.R` estimates the 2x2 hybrid design on the common 2014-2023 window and a period decomposition for the long sample.
-11. `scripts/10_first_difference_bvar.R` estimates the three-variable BVAR in first differences and reports cumulative IRFs scaled to a 1% government expenditure increase.
-12. `scripts/build_dashboard_data.R` converts the existing BVAR and LP outputs into compact app data in the `dashboard/` folder.
+8.  `scripts/07_irf_fevd.R` estimates the BVAR robustness check, generates IRFs, cumulative IRFs, FEVDs, and stability diagnostics for two Cholesky orderings. Set `SAMPLE` to `official_3var`, `official_5var`, `official_nsa`, `long_3var`, `long`, `long_3var_2dum`, `official_private_demand`, `official_gdp_ex_gov`, `official_broad`, or `official_broad_dp`.
+9.  `scripts/08_local_projections.R` estimates the main local projections for the official, NSA, and long samples with `lpirfs::lp_lin_iv`. The three core responses use two lags of the core variables; CPI and private credit use the same estimator with those lags as exogenous controls.
+10. `scripts/09_hybrid_robustness.R` estimates the 2x2 hybrid design on the common 2014-2023 window and a period decomposition for the long sample, including the long sample with only two event dummies.
+11. `scripts/10_first_difference_bvar.R` estimates the three-variable BVAR in first differences and reports cumulative IRFs scaled to a 1% government expenditure increase. Set `N_DRAW`, `N_BURN`, and `N_THIN` to change the sampler for this robustness check.
+12. `scripts/11_prior_sensitivity.R` compares hierarchical and fixed-lambda BVAR estimates with an OLS-VAR benchmark.
+13. `scripts/12_power_analysis.R` runs the Monte Carlo power analysis for the official local projections and reports BVAR precision from the posterior intervals.
+14. `scripts/13_residual_seasonality.R` tests the X-13-adjusted official series for residual seasonality using joint F tests on quarterly dummies.
+15. `scripts/build_dashboard_data.R` converts the existing BVAR and LP outputs into compact app data in the `dashboard/` folder.
 
 The complete sequence is also defined in `.github/workflows/reproducibility.yml` and is used by the repository's reproducibility workflow.
 
-## BVAR specification
+## Estimation: local projections and BVAR
 
-The baseline estimation uses the official 2014Q1–2023Q4 sample with three variables (government expenditure, imports, and non-oil GDP), two lags, and a Minnesota prior. The sampler is run with 100,000 draws, 20,000 burn-in draws, and thinning every 20 draws. Impulse responses are calculated for 12 quarters with 68% and 90% credible intervals.
+The baseline estimation uses the INETL 2014Q1–2023Q4 sample with three variables (government expenditure, imports, and non-oil GDP), two lags, and a Minnesota prior. The sampler is run with 100,000 draws, 20,000 burn-in draws, and thinning every 20 draws. Impulse responses are calculated for 12 quarters with 68% and 90% credible intervals. `BVAR::bvar` does not accept exogenous regressors, so event and seasonal dummies are partialled out of the endogenous variables by OLS before estimation; local projections include the dummies directly as controls.
 
 Two recursive Cholesky orderings are estimated to assess sensitivity to the identification assumption:
 
 1.  Government expenditure, imports, non-oil GDP.
 2.  Non-oil GDP, government expenditure, imports.
 
-The five-variable official model adds the CPI and private credit but is unstable with 40 observations (maximum companion modulus above one); it is reported only as a robustness check. The long-sample 2002–2023 models are estimated with the same prior and sampler settings, both with three and five variables. Local projections use a recursively identified government-spending shock from a three-variable VAR and Newey-West standard errors. All responses are estimated with `lpirfs::lp_lin_iv`; the auxiliary regressions for CPI and credit keep the two core lags as exogenous controls.
+The five-variable INETL model adds the CPI and private credit but is unstable with 40 observations (maximum companion modulus 1.033); it is reported only as a robustness check. The long-sample 2002–2023 models are estimated with the same prior and sampler settings, both with three and five variables; the five-variable maximum modulus is 0.999, close to the unit circle. Local projections use a recursively identified government-spending shock from a three-variable VAR and Newey-West standard errors. All responses are estimated with `lpirfs::lp_lin_iv`; the auxiliary regressions for CPI and credit keep the two core lags as exogenous controls.
 
 ## Outputs
 
@@ -103,6 +106,7 @@ The five-variable official model adds the CPI and private credit but is unstable
 - `Data/csv/hybrid_2x2_summary.csv`: common-window 2x2 hybrid responses.
 - `Data/csv/period_decomposition_summary.csv`: official, 2014-2023, 2002-2013, and 2002-2023 comparisons.
 - `Data/csv/bvar_diff_summary.csv`: cumulative first-difference BVAR responses.
+- `Data/csv/residual_seasonality.csv`: joint F tests for residual seasonality in the adjusted official series.
 - `Data/csv/stability_order_*_<sample>.csv`: companion-matrix stability diagnostics.
 - `Data/csv/stationarity_<sample>.csv`: ADF, KPSS, and Zivot-Andrews tests.
 - `dashboard/bvar_irf.csv` and `dashboard/lp_irf.csv`: compact BVAR and LP data used by the Shiny app.
@@ -110,7 +114,7 @@ The five-variable official model adds the CPI and private credit but is unstable
 
 ## Interactive dashboard
 
-The Shiny dashboard reports BVAR and local-projection results for the official and long samples. It allows users to switch between the two samples, choose the BVAR response, compare standard and cumulative IRFs, and select LP response variables:
+The Shiny dashboard reports local projections as the preferred baseline and BVAR results as a robustness check for the official and long samples. The LP tab opens first. It allows users to switch between the two samples and select LP response variables; the BVAR tab allows users to choose the response and compare standard and cumulative IRFs:
 
 [Open the Timor-Leste fiscal transmission dashboard](https://connect.posit.cloud/em3r/content/01a068c1-99da-638d-1ba0-1254293e5a61)
 
@@ -140,15 +144,23 @@ SAMPLE=official_5var Rscript scripts/07_irf_fevd.R
 SAMPLE=official_nsa Rscript scripts/07_irf_fevd.R
 SAMPLE=long_3var Rscript scripts/07_irf_fevd.R
 SAMPLE=long Rscript scripts/07_irf_fevd.R
+SAMPLE=long_3var_2dum Rscript scripts/07_irf_fevd.R
+SAMPLE=official_private_demand Rscript scripts/07_irf_fevd.R
+SAMPLE=official_gdp_ex_gov Rscript scripts/07_irf_fevd.R
+SAMPLE=official_broad Rscript scripts/07_irf_fevd.R
+SAMPLE=official_broad_dp Rscript scripts/07_irf_fevd.R
 SAMPLE=official Rscript scripts/08_local_projections.R
 SAMPLE=official_nsa Rscript scripts/08_local_projections.R
 SAMPLE=long Rscript scripts/08_local_projections.R
 Rscript scripts/09_hybrid_robustness.R
 Rscript scripts/10_first_difference_bvar.R
+Rscript scripts/11_prior_sensitivity.R
+Rscript scripts/12_power_analysis.R
+Rscript scripts/13_residual_seasonality.R
 Rscript scripts/build_dashboard_data.R
 ```
 
-The estimates depend on the source data, the temporal-disaggregation assumptions, the selected prior, and the recursive ordering. Results should therefore be interpreted as model-based evidence for a data-limited economy, not as a substitute for a full structural analysis of the Timorese economy. The comparison between the official and interpolated samples is the paper's main methodological result: the strong leakage estimated from the long interpolated sample is not robust to official quarterly observations, and the common-window 2x2 shows that interpolation alone does not reproduce it over 2014-2023. The pre-2014 subsample is too unstable to separate period effects from interpolation.
+The estimates depend on the source data, the temporal-disaggregation assumptions, the selected prior, and the recursive ordering. Results should therefore be interpreted as model-based evidence for a data-limited economy, not as a substitute for a full structural analysis of the Timorese economy. The comparison between the INETL indicator and the long interpolated sample is the paper's main methodological result: the strong leakage estimated from the long interpolated sample is not robust to the indicator-based quarterly observations, and the common-window 2x2 shows that interpolation alone does not reproduce it over 2014-2023. We therefore recommend indicator-based quarterly data for inference and long interpolated samples only as historical benchmarks. The pre-2014 subsample is stable but small, and the long-sample estimate is sensitive to the event-dummy specification.
 
 ## How to Cite
 
@@ -156,6 +168,6 @@ If you use this code or the data generated in your research, please cite this re
 
 **Repository Citation:**
 
-> López, E., & Gomez, J. (2026). *Temporal Disaggregation and the Fragility of Fiscal Leakage Estimates: Evidence from Timor-Leste*. GitHub. <https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar>
+> López, E., & Gomez, J. (2026). *The Fragility of Fiscal Leakage Estimates: Data Construction and Sample Windows in Timor-Leste*. GitHub. <https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar-lp>
 
 **Note:** This repository is part of ongoing research. Citation information will be updated upon publication of the associated paper. For the final paper, please cite the published version with all co-authors

@@ -86,9 +86,9 @@ readr::write_csv(
 )
 
 H <- 12
-N_DRAW <- 100000
-N_BURN <- 20000
-N_THIN <- 20
+N_DRAW <- as.integer(Sys.getenv("N_DRAW", "100000"))
+N_BURN <- as.integer(Sys.getenv("N_BURN", "20000"))
+N_THIN <- as.integer(Sys.getenv("N_THIN", "20"))
 
 order_config <- list(
   "1" = list(
@@ -117,6 +117,12 @@ estimate_cell <- function(cell, fiscal, outcomes, data, suffix, order_label,
     dplyr::select(dplyr::all_of(exo_vars)) %>%
     as.matrix()
 
+  # BVAR::bvar ignores `exogen`; partial out dummies before estimation.
+  if (ncol(exo) > 0) {
+    Y <- stats::residuals(stats::lm(Y ~ exo))
+    colnames(Y) <- cfg$names
+  }
+
   var_base <- pmax(apply(diff(Y), 2, var, na.rm = TRUE), 1e-5)
 
   priors <- BVAR::bv_priors(
@@ -136,7 +142,6 @@ estimate_cell <- function(cell, fiscal, outcomes, data, suffix, order_label,
   model <- BVAR::bvar(
     data = Y,
     lags = 2,
-    exogen = exo,
     priors = priors,
     n_draw = N_DRAW,
     n_burn = N_BURN,
@@ -374,11 +379,28 @@ long_2014_cells <- new_cells %>%
     sample = "2014-2023"
   )
 
+long_2dum_cells <- purrr::map_dfr(c("1", "2"), function(o) {
+  read_cell(
+    path_irf = paste0(
+      "Data/csv/irf_gov_shock_full_order_", o, "_long_3var_2dum.csv"
+    ),
+    path_stability = paste0(
+      "Data/csv/stability_order_", o, "_long_3var_2dum.csv"
+    ),
+    cell = "Interpolated 2002-2023, 2 dummies",
+    fiscal = "ADB broad interpolated",
+    outcomes = "Interpolated",
+    order = o,
+    sample_label = "2002-2023"
+  )
+})
+
 period_decomposition <- dplyr::bind_rows(
   baseline_cells,
   long_2014_cells,
   pre_cells,
-  long_full_cells
+  long_full_cells,
+  long_2dum_cells
 ) %>%
   dplyr::arrange(
     order,
@@ -386,7 +408,8 @@ period_decomposition <- dplyr::bind_rows(
       "Official baseline",
       "Interpolated 2014-2023",
       "Interpolated 2002-2013",
-      "Interpolated 2002-2023"
+      "Interpolated 2002-2023",
+      "Interpolated 2002-2023, 2 dummies"
     )),
     response,
     horizon

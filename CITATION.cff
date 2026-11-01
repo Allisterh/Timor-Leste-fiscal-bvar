@@ -4,14 +4,14 @@ authors:
   - family-names: "Lopez"
     given-names: "Emerson"
     orcid: "https://orcid.org/0009-0009-6423-2883"
-    affiliation: "Independent Researcher"
+    affiliation: "Independent Researcher, Managua, Nicaragua"
   - family-names: "Gomez"
     given-names: "Julio"
     orcid: "https://orcid.org/0009-0005-2859-4810"
-    affiliation: "Independent Researcher"
-title: "Temporal Disaggregation and the Fragility of Fiscal Leakage
-Estimates: Evidence from Timor-Leste"
-version: 1.1.0
-date-released: 2026-10-29
-url: "https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar"
+    affiliation: "Independent Researcher, Managua, Nicaragua"
+title: "The Fragility of Fiscal Leakage Estimates: Data Construction and
+Sample Windows in Timor-Leste"
+version: 1.2.0
+date-released: 2026-11-01
+url: "https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar-lp"
 note: "This repository is part of ongoing research. Citation information will be updated upon publication of the associated paper."

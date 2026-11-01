@@ -13,12 +13,12 @@ bvar_data <- readr::read_csv("bvar_irf.csv", show_col_types = FALSE)
 lp_data <- readr::read_csv("lp_irf.csv", show_col_types = FALSE)
 
 bvar_sample_levels <- c(
-  "Official 2014-2023 (3-variable)",
+  "INETL 2014-2023 (3-variable)",
   "Long 2002-2023 (3-variable)"
 )
 
 lp_sample_levels <- c(
-  "Official 2014-2023",
+  "INETL 2014-2023",
   "Long 2002-2023"
 )
 
@@ -33,7 +33,10 @@ lp_data <- lp_data %>%
     sample_label = factor(sample_label, levels = lp_sample_levels),
     response_label = factor(
       response_label,
-      levels = c("Imports", "Non-oil GDP", "CPI", "Private credit", "Government expenditure")
+      levels = c(
+        "Imports", "Non-oil GDP", "CPI", "Private credit",
+        "Government expenditure"
+      )
     )
   )
 
@@ -56,12 +59,43 @@ ui <- fluidPage(
   ),
 
   titlePanel(h2("Timor-Leste Fiscal Transmission Dashboard", align = "center")),
-  h4("BVAR and local projections, official versus interpolated data", align = "center"),
+  h4("Local projections (preferred baseline) and BVAR (robustness), INETL indicator versus interpolated data", align = "center"),
   br(),
 
   tabsetPanel(
     tabPanel(
-      "BVAR",
+      "Local projections (preferred baseline)",
+      sidebarLayout(
+        sidebarPanel(
+          width = 3,
+          selectInput(
+            "lp_sample", "Sample:",
+            choices = lp_sample_levels,
+            selected = lp_sample_levels[1]
+          ),
+          selectInput(
+            "lp_response", "Response variable:",
+            choices = lp_responses,
+            selected = "Imports"
+          ),
+          hr(),
+          helpText(
+            "Main specification. Local projections estimate each horizon directly and handle the event dummies transparently.",
+            "The shock is the recursively identified government expenditure shock from a three-variable VAR.",
+            "The shock is normalized so that the impact response of government expenditure is 1%.",
+            "Horizon 0 is the impact quarter.",
+            "Bands: 68% and 90% Newey-West HAC confidence intervals."
+          )
+        ),
+        mainPanel(
+          width = 9,
+          plotlyOutput("lp_plot", height = "650px")
+        )
+      )
+    ),
+
+    tabPanel(
+      "BVAR (robustness)",
       sidebarLayout(
         sidebarPanel(
           width = 3,
@@ -81,6 +115,7 @@ ui <- fluidPage(
           ),
           hr(),
           helpText(
+            "Robustness check. The BVAR imposes the full VAR dynamics and a prior.",
             "Shock: a 1% increase in government expenditure.",
             "Responses are reported in percent.",
             "BVAR horizon 1 is the impact quarter.",
@@ -96,44 +131,14 @@ ui <- fluidPage(
     ),
 
     tabPanel(
-      "Local projections",
-      sidebarLayout(
-        sidebarPanel(
-          width = 3,
-          selectInput(
-            "lp_sample", "Sample:",
-            choices = lp_sample_levels,
-            selected = lp_sample_levels[1]
-          ),
-          selectInput(
-            "lp_response", "Response variable:",
-            choices = lp_responses,
-            selected = "Imports"
-          ),
-          hr(),
-          helpText(
-            "Local projections use the recursively identified government expenditure shock from a three-variable VAR.",
-            "The shock is normalized so that the impact response of government expenditure is 1%.",
-            "Horizon 0 is the impact quarter.",
-            "Bands: 68% and 90% Newey-West HAC confidence intervals."
-          )
-        ),
-        mainPanel(
-          width = 9,
-          plotlyOutput("lp_plot", height = "650px")
-        )
-      )
-    ),
-
-    tabPanel(
       "About",
       fluidRow(
         column(
           width = 8, offset = 2,
           h4("What this dashboard shows"),
           p(
-            "The dashboard compares a three-variable Bayesian VAR and local projections for Timor-Leste.",
-            "The official sample uses quarterly national accounts from INETL for 2014Q1-2023Q4.",
+            "The dashboard reports local projections as the preferred baseline and a three-variable Bayesian VAR as a robustness check for Timor-Leste.",
+            "The baseline uses the INETL quarterly indicator for 2014Q1-2023Q4. INETL itself benchmarks annual GDP and disaggregates it with quarterly indicators.",
             "The long sample uses annual ADB data disaggregated to quarterly frequency with the Denton-Cholette method for 2002Q1-2023Q4."
           ),
           h4("Units and interpretation"),
@@ -146,17 +151,23 @@ ui <- fluidPage(
           ),
           h4("Caveats"),
           p(
-            "The official sample is short, and the long sample is interpolated.",
+            "The INETL sample is short, and the long sample uses univariate interpolation.",
+            "Local projections are sensitive to small samples; the BVAR is a second estimator, not proof that either approach is uniformly superior.",
             "The dashboard is a descriptive and model-based comparison, not a policy counterfactual.",
-            "The five-variable official BVAR is unstable and is therefore not shown here."
+            "The five-variable INETL BVAR is unstable and is therefore not shown here."
+          ),
+          h4("Recommendation"),
+          p(
+            "Use indicator-based quarterly data for inference. Treat long interpolated samples as historical benchmarks, not policy counterfactuals.",
+            "When both data types exist, report a common-window test that varies the fiscal series and the outcome series separately."
           ),
           h4("Source and code"),
           p(
             "Data: INETL, ADB, BCTL, and DNE.",
             "Code and documentation:",
             tags$a(
-              href = "https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar",
-              "Timor-Leste fiscal BVAR repository",
+              href = "https://github.com/Emerson-nic/Timor-Leste-fiscal-bvar-lp",
+              "Timor-Leste fiscal repository",
               target = "_blank"
             ),
             "."

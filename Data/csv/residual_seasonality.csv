@@ -1,0 +1,10 @@
+variable,f_stat,p_value
+ln_gov_exp,0.0018,0.9999
+ln_gdp_non,1e-4,1
+ln_imports,9e-4,1
+ln_private_demand,0.1902,0.9024
+ln_gdp_ex_gov,0.011,0.9984
+ln_gov_broad,0.0029,0.9998
+ln_gov_broad_dp,0.0085,0.9989
+ln_cpi,0.0987,0.9602
+ln_credit,0.1438,0.933

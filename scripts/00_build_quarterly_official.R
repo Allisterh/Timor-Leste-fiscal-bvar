@@ -73,6 +73,10 @@ extract_row <- function(label) {
 gov_exp <- extract_row("General Government FCE")
 imports <- extract_row("Imports of goods and services")
 gdp_non <- extract_row("GDP (Expenditure )")
+private_consumption <- extract_row("Private consumption")
+private_investment <- extract_row("Private investment")
+public_investment <- extract_row("Public investment")
+development_partners <- extract_row("Development Partners")
 
 dates <- seq(as.Date("2014-01-01"), by = "3 months", length.out = 40)
 
@@ -80,7 +84,15 @@ na_quarterly <- tibble::tibble(
   date = dates,
   gov_expenditure_real = gov_exp,
   gdp_non_oil_real = gdp_non,
-  imports_real = imports
+  imports_real = imports,
+  private_consumption_real = private_consumption,
+  private_investment_real = private_investment,
+  public_investment_real = public_investment,
+  development_partners_real = development_partners,
+  private_demand_real = private_consumption + private_investment,
+  gdp_ex_gov_real = gdp_non - gov_exp,
+  gov_broad_real = gov_exp + public_investment,
+  gov_broad_dp_real = gov_exp + public_investment + development_partners
 )
 
 #CPI (monthly -> quarterly mean)
@@ -203,6 +215,51 @@ readr::write_csv(
   "Data/csv/timor_quarterly_official.csv"
 )
 
+accounting_decomposition <- official_levels %>%
+  dplyr::transmute(
+    date,
+    gdp_non_oil_real,
+    gov_expenditure_real,
+    imports_real,
+    private_consumption_real,
+    private_investment_real,
+    public_investment_real,
+    development_partners_real,
+    private_demand_real,
+    gdp_ex_gov_real,
+    gov_broad_real,
+    gov_broad_dp_real,
+    share_gov = gov_expenditure_real / gdp_non_oil_real,
+    share_imports = imports_real / gdp_non_oil_real,
+    share_private_demand = private_demand_real / gdp_non_oil_real,
+    share_public_investment = public_investment_real / gdp_non_oil_real,
+    share_development_partners = development_partners_real / gdp_non_oil_real
+  )
+
+readr::write_csv(
+  accounting_decomposition,
+  "Data/csv/accounting_decomposition.csv"
+)
+
+accounting_summary <- accounting_decomposition %>%
+  dplyr::summarise(
+    n_obs = dplyr::n(),
+    mean_share_gov = mean(share_gov),
+    min_share_gov = min(share_gov),
+    max_share_gov = max(share_gov),
+    mean_share_imports = mean(share_imports),
+    min_share_imports = min(share_imports),
+    max_share_imports = max(share_imports),
+    mean_share_private_demand = mean(share_private_demand),
+    mean_share_public_investment = mean(share_public_investment),
+    mean_share_development_partners = mean(share_development_partners)
+  )
+
+readr::write_csv(
+  accounting_summary,
+  "Data/csv/accounting_summary.csv"
+)
+
 
 #logs, seasonal adjustment, and event dummies
 
@@ -213,6 +270,10 @@ log_levels <- official_levels %>%
     ln_gov_exp = log(gov_expenditure_real),
     ln_gdp_non = log(gdp_non_oil_real),
     ln_imports = log(imports_real),
+    ln_private_demand = log(private_demand_real),
+    ln_gdp_ex_gov = log(gdp_ex_gov_real),
+    ln_gov_broad = log(gov_broad_real),
+    ln_gov_broad_dp = log(gov_broad_dp_real),
     ln_cpi = log(cpi),
     ln_credit = log(private_credit)
   )

@@ -1,2 +1,2 @@
-sample,n_obs,n_used,lags,horizon,shock_sd,impact_gov,nw_lag,engine
-long,88,86,2,12,1.0654274349585817,-0.0021678330758755048,6,lpirfs::lp_lin_iv
+sample,n_obs,n_used,lags,horizon,shock_sd,fiscal_var,impact_gov,nw_lag,engine
+long,88,86,2,12,0.9330531792422755,ln_gov_exp,0.015300120611476153,6,lpirfs::lp_lin_iv

@@ -64,7 +64,54 @@ config <- switch(
     vars_2 = c("ln_gdp_non", "ln_gov_exp", "ln_imports", "ln_cpi", "ln_credit"),
     names_2 = c("N.O. GDP", "Gov Exp", "Imports", "CPI", "Credit")
   ),
-  stop("Unknown SAMPLE. Use official_3var, official_5var, official_nsa, long_3var, or long.")
+  long_3var_2dum = list(
+    file = "Data/csv/timor_quarterly_log_and_dummys.csv",
+    exo = official_exo,
+    suffix = "_long_3var_2dum",
+    vars_1 = c("ln_gov_exp", "ln_imports", "ln_gdp_non"),
+    names_1 = c("Gov Exp", "Imports", "N.O. GDP"),
+    vars_2 = c("ln_gdp_non", "ln_gov_exp", "ln_imports"),
+    names_2 = c("N.O. GDP", "Gov Exp", "Imports")
+  ),
+  official_private_demand = list(
+    file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
+    exo = official_exo,
+    suffix = "_official_private_demand",
+    vars_1 = c("ln_gov_exp", "ln_imports", "ln_private_demand"),
+    names_1 = c("Gov Exp", "Imports", "Private Demand"),
+    vars_2 = c("ln_private_demand", "ln_gov_exp", "ln_imports"),
+    names_2 = c("Private Demand", "Gov Exp", "Imports")
+  ),
+  official_gdp_ex_gov = list(
+    file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
+    exo = official_exo,
+    suffix = "_official_gdp_ex_gov",
+    vars_1 = c("ln_gov_exp", "ln_imports", "ln_gdp_ex_gov"),
+    names_1 = c("Gov Exp", "Imports", "GDP excl. GFC"),
+    vars_2 = c("ln_gdp_ex_gov", "ln_gov_exp", "ln_imports"),
+    names_2 = c("GDP excl. GFC", "Gov Exp", "Imports")
+  ),
+  official_broad = list(
+    file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
+    exo = official_exo,
+    suffix = "_official_broad",
+    shock_name = "Gov Broad",
+    vars_1 = c("ln_gov_broad", "ln_imports", "ln_gdp_non"),
+    names_1 = c("Gov Broad", "Imports", "N.O. GDP"),
+    vars_2 = c("ln_gdp_non", "ln_gov_broad", "ln_imports"),
+    names_2 = c("N.O. GDP", "Gov Broad", "Imports")
+  ),
+  official_broad_dp = list(
+    file = "Data/csv/timor_quarterly_official_log_and_dummys.csv",
+    exo = official_exo,
+    suffix = "_official_broad_dp",
+    shock_name = "Gov Broad DP",
+    vars_1 = c("ln_gov_broad_dp", "ln_imports", "ln_gdp_non"),
+    names_1 = c("Gov Broad DP", "Imports", "N.O. GDP"),
+    vars_2 = c("ln_gdp_non", "ln_gov_broad_dp", "ln_imports"),
+    names_2 = c("N.O. GDP", "Gov Broad DP", "Imports")
+  ),
+  stop("Unknown SAMPLE. Use official_3var, official_5var, official_nsa, long_3var, long, long_3var_2dum, official_private_demand, official_gdp_ex_gov, official_broad, or official_broad_dp.")
 )
 
 data <- readr::read_csv(config$file, show_col_types = FALSE)
@@ -73,17 +120,26 @@ exogenous <- data %>%
   as.matrix()
 
 H <- 12
-N_DRAW <- 100000
-N_BURN <- 20000
-N_THIN <- 20
+N_DRAW <- as.integer(Sys.getenv("N_DRAW", "100000"))
+N_BURN <- as.integer(Sys.getenv("N_BURN", "20000"))
+N_THIN <- as.integer(Sys.getenv("N_THIN", "20"))
 
 #estimation function
 
-run_order <- function(vars, names, seed, order_label) {
+run_order <- function(vars, names, seed, order_label,
+                      shock_name = "Gov Exp") {
   endogenous <- data %>%
     dplyr::select(dplyr::all_of(vars)) %>%
     as.matrix()
   colnames(endogenous) <- names
+
+  # BVAR::bvar does not accept exogenous regressors (its `...` is unused).
+  # Partial out event/seasonal dummies before estimation so that the shocks
+  # are not absorbed into the endogenous dynamics.
+  if (ncol(exogenous) > 0) {
+    endogenous <- stats::residuals(stats::lm(endogenous ~ exogenous))
+    colnames(endogenous) <- names
+  }
 
   var_base <- as.numeric(apply(diff(endogenous), 2, var, na.rm = TRUE))
   var_base <- pmax(var_base, 1e-5, na.rm = TRUE)
@@ -105,7 +161,6 @@ run_order <- function(vars, names, seed, order_label) {
   model <- BVAR::bvar(
     data = endogenous,
     lags = 2,
-    exogen = exogenous,
     priors = priors,
     n_draw = N_DRAW,
     n_burn = N_BURN,
@@ -142,8 +197,8 @@ run_order <- function(vars, names, seed, order_label) {
   )
   plot(
     irf_obj,
-    vars_impulse = "Gov Exp",
-    vars_response = setdiff(names, "Gov Exp")
+    vars_impulse = shock_name,
+    vars_response = setdiff(names, shock_name)
   )
   grDevices::dev.off()
 
@@ -166,7 +221,7 @@ run_order <- function(vars, names, seed, order_label) {
   )
 
   gov_df <- irf_df %>%
-    dplyr::filter(Impulse == "Gov Exp") %>%
+    dplyr::filter(Impulse == shock_name) %>%
     dplyr::arrange(Response, Horizon)
 
   readr::write_csv(
@@ -228,8 +283,8 @@ run_order <- function(vars, names, seed, order_label) {
   )
   plot(
     irf_cum_obj,
-    vars_impulse = "Gov Exp",
-    vars_response = setdiff(names, "Gov Exp")
+    vars_impulse = shock_name,
+    vars_response = setdiff(names, shock_name)
   )
   grDevices::dev.off()
 
@@ -322,7 +377,8 @@ order_1 <- run_order(
   vars = config$vars_1,
   names = config$names_1,
   seed = 54973997,
-  order_label = "1"
+  order_label = "1",
+  shock_name = if (is.null(config$shock_name)) "Gov Exp" else config$shock_name
 )
 
 #order 2: non-oil GDP first
@@ -331,7 +387,8 @@ order_2 <- run_order(
   vars = config$vars_2,
   names = config$names_2,
   seed = 54973998,
-  order_label = "2"
+  order_label = "2",
+  shock_name = if (is.null(config$shock_name)) "Gov Exp" else config$shock_name
 )
 
 message("BVAR finished for sample: ", sample_name)

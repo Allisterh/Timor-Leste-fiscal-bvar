@@ -42,6 +42,7 @@ jobs:
       - name: Diagnostics and descriptive figures
         run: |
           Rscript scripts/04_stationary_test.R
+          Rscript scripts/13_residual_seasonality.R
           Rscript scripts/05_graphics.R
           Rscript scripts/06_hyperparameters_lag_bvar_test.R
 
@@ -55,6 +56,11 @@ jobs:
         run: |
           SAMPLE=long_3var Rscript scripts/07_irf_fevd.R
           SAMPLE=long Rscript scripts/07_irf_fevd.R
+          SAMPLE=long_3var_2dum Rscript scripts/07_irf_fevd.R
+          SAMPLE=official_private_demand Rscript scripts/07_irf_fevd.R
+          SAMPLE=official_gdp_ex_gov Rscript scripts/07_irf_fevd.R
+          SAMPLE=official_broad Rscript scripts/07_irf_fevd.R
+          SAMPLE=official_broad_dp Rscript scripts/07_irf_fevd.R
 
       - name: Hybrid robustness and period decomposition
         run: |
@@ -62,7 +68,12 @@ jobs:
 
       - name: First-difference BVAR
         run: |
-          Rscript scripts/10_first_difference_bvar.R
+          N_DRAW=100000 N_BURN=20000 N_THIN=20 Rscript scripts/10_first_difference_bvar.R
+
+      - name: Prior sensitivity and power analysis
+        run: |
+          Rscript scripts/11_prior_sensitivity.R
+          Rscript scripts/12_power_analysis.R
 
       - name: Local projections
         run: |
